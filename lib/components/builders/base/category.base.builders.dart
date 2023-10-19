@@ -33,7 +33,7 @@ class _CategoryBaseState extends State<CategoryBase> {
           },
           child:  Container(
             width: MediaQuery.of(context).size.width * 0.5,
-            margin: EdgeInsets.all(5.0),
+            margin: EdgeInsets.all(2.0),
             decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Radius.circular(5.0)),
                 gradient: LinearGradient(
@@ -62,7 +62,7 @@ class _CategoryBaseState extends State<CategoryBase> {
                   color: Colors.black.withOpacity(0.6),
                 ),
                 Container(
-                  padding: const EdgeInsets.all(10.0),
+                  padding: const EdgeInsets.all(5.0),
                   alignment: Alignment.bottomLeft,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -80,6 +80,7 @@ class _CategoryBaseState extends State<CategoryBase> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
                         child: Padding(
                           padding: EdgeInsets.only(bottom: 10.0),
                           child: Row(
@@ -87,7 +88,7 @@ class _CategoryBaseState extends State<CategoryBase> {
                                 DefaultTextStyle(
                                   textAlign: TextAlign.start,
                                   style: const TextStyle(
-                                    fontSize: 25,
+                                    fontSize: 14,
                                     fontFamily: 'Rubik',
                                     color: Colors.white
                                   ),
@@ -101,7 +102,7 @@ class _CategoryBaseState extends State<CategoryBase> {
                                   child: DefaultTextStyle(
                                     textAlign: TextAlign.start,
                                     style: const TextStyle(
-                                      fontSize: 25,
+                                      fontSize: 14,
                                       fontFamily: 'Rubik',
                                       color: Colors.white
                                     ),
@@ -118,7 +119,7 @@ class _CategoryBaseState extends State<CategoryBase> {
                       DefaultTextStyle(
                         textAlign: TextAlign.start,
                         style: const TextStyle(
-                          fontSize: 25,
+                          fontSize: 16,
                           fontFamily: 'Rubik',
                           color: Colors.white
                         ),

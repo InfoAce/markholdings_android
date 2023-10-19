@@ -1,5 +1,6 @@
 import 'package:markholdings_ecommerce/store/actions/auth.action.store.dart';
 import 'package:markholdings_ecommerce/store/actions/device.action.store.dart';
+import 'package:markholdings_ecommerce/store/actions/product.action.store.dart';
 import 'package:markholdings_ecommerce/store/actions/user.action.store.dart';
 
 class AppState {
@@ -10,17 +11,22 @@ class AppState {
   // Get device info
   late final Map<String,dynamic> _device;
 
-  // Get device info
+  // Get user info
   late final Map<String,dynamic> _user;
 
+    // Get product info
+  late final Map<String,dynamic> _product;
+
   // Initializa state
-  AppState(this._auth,this._device,this._user);
+  AppState(this._auth,this._device,this._user,this._product);
 
   Map<String,dynamic> get auth => _auth;
 
   Map<String,dynamic> get device => _device;
 
   Map<String,dynamic> get user => _user;
+
+  Map<String,dynamic> get product => _product;
 
   AppState.initialState() : 
     _auth = {
@@ -30,7 +36,8 @@ class AppState {
       "id"  :  "",
       "name":  ""
     },
-    _user = {};
+    _user = {},
+    _product = {};
 
 }
 
@@ -38,13 +45,36 @@ class AppState {
 AppState appReducer(AppState state, dynamic action) {
   // Check the type of action provided
   if( action is UpdateDevice){
-    return AppState(state.auth,action.device,state.user);
+    return AppState(
+      state.auth,
+      action.device,
+      state.user,
+      state.product
+    );
   }
   if( action is UpdateAuth){
-    return AppState(action.auth,state.device,state.user);
+    return AppState(
+      action.auth,
+      state.device,
+      state.user,
+      state.product
+    ); 
   } 
   if( action is UpdateUser){
-    return AppState(state.auth,state.device,action.user);
+    return AppState(
+      state.auth,
+      state.device,
+      action.user,
+      state.product
+    );  
+  }  
+  if( action is ViewProduct){
+    return AppState(
+      state.auth,
+      state.device,
+      state.user,
+      action.product
+    );
   }   
   return state;
 }

@@ -24,7 +24,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
     return Container(
       color: Colors.blueAccent,
       child: Padding(
-        padding: const EdgeInsets.all(10.0),
+        padding: const EdgeInsets.all(5.0),
         child: Theme(
           data: Theme.of(context).copyWith(primaryColor: Colors.grey[600]),
           child: TextField(

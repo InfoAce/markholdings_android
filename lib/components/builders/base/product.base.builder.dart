@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:markholdings_ecommerce/store/actions/product.action.store.dart';
+import 'package:provider/provider.dart';
+import 'package:redux/redux.dart';
 
 class ProductBase extends StatefulWidget {
   ProductBase({super.key,required this.product});
@@ -22,17 +25,12 @@ class _ProductBaseState extends State<ProductBase> {
   Widget build(BuildContext context) {
     return InkWell(
           onTap: (){
-            print(widget.product);
-            // DefaultTabController.of(context).animateTo(1);
-            // Navigator.push(
-            //   context, 
-            //   MaterialPageRoute(
-            //     builder: (context) => Home(categoryId: category['id']) )
-            // );
+            final store   = Provider.of<Store>(context,listen: false);   
+            store.dispatch(ViewProduct(widget.product));
           },
           child:  Container(
             width: MediaQuery.of(context).size.width * 0.5,
-            margin: EdgeInsets.all(5.0),
+            margin: EdgeInsets.all(2.0),
             decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Radius.circular(5.0)),
                 gradient: LinearGradient(
@@ -75,7 +73,7 @@ class _ProductBaseState extends State<ProductBase> {
                   ) 
                 : const Text(''),  
                 Container(
-                  padding: const EdgeInsets.all(10.0),
+                  padding: const EdgeInsets.all(5.0),
                   alignment: Alignment.bottomLeft,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -100,7 +98,7 @@ class _ProductBaseState extends State<ProductBase> {
                                 DefaultTextStyle(
                                   textAlign: TextAlign.start,
                                   style: const TextStyle(
-                                    fontSize: 25,
+                                    fontSize: 14,
                                     fontFamily: 'Rubik',
                                     color: Colors.white
                                   ),
@@ -131,7 +129,7 @@ class _ProductBaseState extends State<ProductBase> {
                       DefaultTextStyle(
                         textAlign: TextAlign.start,
                         style: const TextStyle(
-                          fontSize: 25,
+                          fontSize: 16,
                           fontFamily: 'Rubik',
                           color: Colors.white
                         ),
