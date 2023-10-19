@@ -31,7 +31,6 @@ class UserModel {
       "SELECT * FROM $tableName"
     );
     if ( find.isNotEmpty ){
-      print(find);
       final Map<String,dynamic> user = find[0];
       return UserEntity(user['email'], user['token'], user['blocked']);
     }

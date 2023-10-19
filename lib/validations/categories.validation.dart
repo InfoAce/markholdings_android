@@ -1,6 +1,6 @@
 class CategoriesValidation {
   
-  final List<dynamic> categories;
+  final dynamic categories;
 
   const CategoriesValidation({
     required this.categories,

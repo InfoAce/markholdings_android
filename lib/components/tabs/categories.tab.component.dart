@@ -13,12 +13,16 @@ class CategoriesTab extends StatefulWidget {
 
 class _CategoriesTabState extends State<CategoriesTab> {
 
+  filterCategories(){
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: StickyHeader(
         header: Container(
-          child: CustomSearchBar(),
+          child: CustomSearchBar(placeholder: 'Search for a category',callback: filterCategories),
         ),
         content: Container(
           child: const Column(

@@ -21,6 +21,7 @@ class ApiService extends http.BaseClient {
 
   @override
   Future<http.Response> get(url, { Map<String, String>? headers }) async{
+    print(Uri.parse('$baseUrl/$url').toString());
     return await _httpClient.get(Uri.parse('$baseUrl/$url'), headers: _mergedHeaders(headers));
   }
 
