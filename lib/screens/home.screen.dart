@@ -28,6 +28,28 @@ class _HomeState extends State<Home> {
       _selectedIndex = index;    
     });
   }
+
+  @override
+  void initState(){
+    // if( user.isNotEmpty ){
+    //   String access_token      = user['access_token'];
+    //   String token_type        = user['token_type'];
+    //   headers['Authorization'] = "$token_type $access_token";
+    //   store.dispatch(
+    //     UpdateAuth({
+    //       "token": user['access_token'],
+    //     })
+    //   );  
+    // }   
+    // dbChecker();
+    super.initState(); 
+  }
+
+  // Future<void> dbChecker() async{
+  //   final db = Provider.of<DatabaseService>(context,listen: false);
+  //   print('here');
+  //   print(await db.database);
+  // }
   
   @override
   Widget build(BuildContext context) {

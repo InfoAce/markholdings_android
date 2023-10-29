@@ -1,6 +1,9 @@
 import 'package:device_info/device_info.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:markholdings_ecommerce/database/init.database.dart';
 import 'package:markholdings_ecommerce/models/user.model.dart';
+import 'package:markholdings_ecommerce/screens/splash.screen.dart';
+import 'package:markholdings_ecommerce/store/actions/env.action.store.dart';
 import 'package:markholdings_ecommerce/store/app.store.dart';
 import 'package:markholdings_ecommerce/store/actions/auth.action.store.dart';
 import 'package:markholdings_ecommerce/store/actions/device.action.store.dart';
@@ -11,35 +14,30 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:markholdings_ecommerce/screens/home.screen.dart';
 // import 'package:markholdings_ecommerce/screens/splash.screen.dart';
 import 'package:provider/provider.dart';
+import 'package:sqflite/sqflite.dart';
 
 late Store<AppState> store;
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
   store = Store<AppState>(appReducer,initialState: AppState.initialState());
 
   await dotenv.load(fileName: "lib/.env");
 
   AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
-  dynamic user                  = await UserModel().first();
+  dynamic user                  = {};
   Map<String,String> headers    = { 
     "Content-Type":"application/json",
     "Accept":"application/json"
   };
 
-  if( user.isNotEmpty ){
-    String token             = user['token'];
-    headers['Authorization'] = "Bearer $token";
-  }
+  
+  store.dispatch(UpdateAuth({"token":"","user":{} })); 
 
+  store.dispatch(UpdateEnv({...dotenv.env}));
 
   store.dispatch(UpdateDevice({"name":androidInfo.model,"id":androidInfo.androidId}));
-  store.dispatch(UpdateAuth({
-    "exipryDate": "",
-    "loading":    false,
-    "token":      "",
-    "user":       {}
-  }));
 
   runApp(StoreProvider(
     store:store,
@@ -68,13 +66,14 @@ class MarkholdingsApp extends StatelessWidget{
         ),
       ],
       child: MaterialApp(
-        initialRoute: '/home',
+        initialRoute: 'home',
         routes: {
+          'home': (context) => const Home(),
           // '/':     (context) => const SplashScreen(),
-          '/home': (context) => Home(),
         },
         theme: ThemeData(fontFamily: 'Rubik')
       )
     );
   }
+  
 }

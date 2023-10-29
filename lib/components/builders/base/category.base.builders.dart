@@ -33,6 +33,7 @@ class _CategoryBaseState extends State<CategoryBase> {
           },
           child:  Container(
             width: MediaQuery.of(context).size.width * 0.5,
+            height: MediaQuery.of(context).size.height * 0.1,
             margin: EdgeInsets.all(2.0),
             decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Radius.circular(5.0)),

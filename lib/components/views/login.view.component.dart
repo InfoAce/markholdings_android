@@ -6,6 +6,7 @@ import 'package:http/http.dart';
 import 'package:markholdings_ecommerce/models/login.model.dart';
 import 'package:markholdings_ecommerce/models/user.model.dart';
 import 'package:markholdings_ecommerce/services/api.service.dart';
+import 'package:markholdings_ecommerce/store/actions/auth.action.store.dart';
 import 'package:markholdings_ecommerce/store/actions/user.action.store.dart';
 import 'package:markholdings_ecommerce/store/app.store.dart';
 import 'package:markholdings_ecommerce/validations/authorize.validation.dart';
@@ -244,7 +245,7 @@ class _LoginViewState extends State<LoginView> {
         switch(response.statusCode){
           case 200:
             AuthorizationValidation authorize = AuthorizationValidation.fromJson(jsonDecode(response.body));  
-            UserModel().create(email: authorize.user['email'], token: data.token['plainTextToken'], blocked: authorize.device['blocked']);  
+            UserModel().create(email: authorize.user['email'], access_token: data['access_token'], refresh_token: data['refresh_token'], token_type: data['token_type']);  
             store.dispatch(UpdateUser(authorize.user));
             setState(() {
               _authorize = false;
@@ -259,19 +260,36 @@ class _LoginViewState extends State<LoginView> {
 
   Future<dynamic> login(context) async { 
     setState(() => _loading = true ); 
+    final store   = Provider.of<Store>(context,listen: false);
     final response = await Provider.of<ApiService>(context,listen: false)
                                    .post(
                                       Uri.parse('/auth/login'.toString()),
                                       body: {
-                                        "email":    form.email,
-                                        "password": form.password,
-                                        "device":   widget.deviceInfo['id']
+                                        "email":         form.email,
+                                        "password":      form.password,
+                                        "client_id":     store.state.env['OAUTH_ID'],
+                                        "client_secret": store.state.env['OAUTH_SECRET'],
                                       }
                                    );
     switch(response.statusCode){
       case 200:
+        setState(() => _loading = false ); 
         LoginValidation data = LoginValidation.fromJson(jsonDecode(response.body));
-        authorize(data,context);
+        UserModel().create(email: form.email, access_token: data.access_token, refresh_token: data.refresh_token, token_type: data.token_type );  
+        store.dispatch(
+          UpdateAuth({
+            "token": data.access_token,
+          })
+        );      
+        Provider.of<ApiService>(context)
+                .get(Uri.parse('auth/profile'.toString()))
+                .then((value){
+                  print(value);
+                });
+        // store.dispatch(UpdateUser(authorize.user));        
+        print(data.access_token);
+        print(data.refresh_token);
+        // authorize(data,context);
       break;
       case 401:
         setState(() => _loading = false ); 

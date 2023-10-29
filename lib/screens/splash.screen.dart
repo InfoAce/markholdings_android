@@ -1,9 +1,15 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:markholdings_ecommerce/main.dart';
+import 'package:markholdings_ecommerce/models/user.model.dart';
 import 'package:markholdings_ecommerce/screens/home.screen.dart';
 import 'package:markholdings_ecommerce/services/api.service.dart';
+import 'package:markholdings_ecommerce/store/actions/auth.action.store.dart';
 import 'package:markholdings_ecommerce/validations/company.validation.dart';
+import 'package:markholdings_ecommerce/validations/profile.validation.dart';
 import 'package:provider/provider.dart';
+import 'package:redux/redux.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,18 +20,85 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
 
-  late ApiService api;
+  late Map<String,dynamic> company = {};
+  List<Widget> _children           = [];
+  late dynamic user                = {};
   late String logo;
 
   @override
   void initState() {
     // TODO: implement initState
-    super.initState();
+    fetchStoredUser();
+    super.initState();    
+  }
+
+  @override
+  void didChangeDependencies(){
+    initData(context);
+  }
+
+  Future<void> fetchStoredUser() async{
+    final storedUser = await UserModel().first();  
+    setState(() {
+      user = storedUser;
+    });
+  }
+
+  Future<void> initData(context) async{
+    Future.wait([ 
+            Provider.of<ApiService>(context).get(Uri.parse('company'.toString())),
+            Provider.of<ApiService>(context).get(Uri.parse('auth/profile'.toString()))
+          ])
+          .then( (response) {
+
+            if( response[0].statusCode == 200 ){
+              // If the server did not return a 200 OK response,
+              // then throw an exception.      
+              setState(() {
+                company = CompanyValidation.fromJson(jsonDecode(response[0].body)).company;                
+              });
+            } 
+
+            if( response[1].statusCode == 200 ){
+              // If the server did not return a 200 OK response,
+              // then throw an exception.      
+              final user  = ProfileValidation.fromJson(jsonDecode(response[1].body));
+              final store = Provider.of<Store>(context,listen: false);
+              // store.dispatch(
+              //   UpdateAuth({
+              //     "token": store.state.auth['token'],
+              //     "user":  user               
+              //   })
+              // );
+            }  
+
+            if(response[1].statusCode == 401 ) {
+              // If the server did not return a 200 OK response,
+              // then throw an exception.    
+              if( user.isNotEmpty ){
+                refreshToken();
+              }
+            }   
+
+            if( response[0].statusCode >= 400) {
+              Alert(
+                context: context, 
+                type: AlertType.warning,
+                title: "Something went wrong.", 
+                desc: "An error occurred while contacting the server. Please report the issue to the administrator."
+              ).show(); 
+            }
+
+          })
+          .whenComplete(() {
+            Future.delayed(Duration(seconds: 2),() {
+              Navigator.pushNamed(context, 'home');
+            });
+          });
   }
 
   @override
   Widget build(BuildContext context) {
-    api   = Provider.of<ApiService>(context);
     return MaterialApp(
       home: SafeArea(
         child: SingleChildScrollView(
@@ -35,24 +108,15 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,  
               children: [
-                FutureBuilder<CompanyValidation>(
-                  future:  fetchSplashScreen(),
-                  builder: (context,snapshot) {
-                  if (snapshot.hasData) {
-                      delayNavigation(context);
-                      return Image.network(
-                        snapshot.data!.company['logo_url'],
-                        height: 150,
-                        fit:BoxFit.fill
-                      );
-                    } else if (snapshot.hasError) {
-                      // return Text('${snapshot.error}');
-                    }                  
-                    return const CircularProgressIndicator(
-                      color: Colors.white,
-                    );
-                  }
-                ),                
+                company.isNotEmpty ? 
+                  Image.network(
+                    company['logo_url'],
+                    height: 150,
+                    fit:BoxFit.fill
+                  )               
+                : const CircularProgressIndicator(
+                  color: Colors.white,
+                ),               
                 const Padding(padding: EdgeInsets.only(bottom: 10.0,top:10.0)),   
                 const DefaultTextStyle(
                   style: TextStyle(
@@ -61,7 +125,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                       color: Colors.blueAccent
                   ),
                   child: Text("Markholdings"),
-                ),                
+                ),                  
               ],
             )
           )
@@ -70,27 +134,31 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     );
   }
   
-  Future<CompanyValidation> fetchSplashScreen() async{ 
-    
-    final response = await api.get(Uri.parse('company'.toString()));
+  Future<dynamic> refreshToken() async{ 
+    final store    = Provider.of<Store>(context,listen: false);
+    final response = await Provider.of<ApiService>(context)
+                                   .post(
+                                    Uri.parse('auth/refresh'.toString()),
+                                    body:{
+                                      "token":         user['refresh_token'],
+                                      "client_id":     store.state.env['OAUTH_ID'],
+                                      "client_secret": store.state.env['OAUTH_SECRET'],                                      
+                                    }
+                                   );
     
     if( response.statusCode == 200 ){
       // If the server did not return a 200 OK response,
       // then throw an exception.      
-      return CompanyValidation.fromJson(jsonDecode(response.body));
+      return ProfileValidation.fromJson(jsonDecode(response.body));
     }  else {
       // If the server did not return a 200 OK response,
       // then throw an exception.      
-      throw Exception("Something went wrong.");
+      // Alert(
+      //   context: buildContext, 
+      //   title: "RFLUTTER", 
+      //   desc: "Flutter is awesome."
+      // ).show();
     }
 
-  }
-
-  Future<void> delayNavigation(context) async {
-    await Future.delayed(const Duration(seconds: 2));
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Home())
-    );
   }
 }

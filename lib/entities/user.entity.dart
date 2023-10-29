@@ -1,25 +1,29 @@
-import 'dart:ffi';
-
 class UserEntity{
 
   // Initialize email
   final String _email;
 
-  // Initialize token
-  final String _token;
+  // Initialize access token
+  final String _access_token;
 
-  // Initialize blocked
-  final Int _blocked;
+  // Initialize refresh token
+  final String _refresh_token;
 
-  UserEntity(this._email,this._token,this._blocked);
+  // Initialize token type
+  final String _token_type;  
 
-  // Fetch blocked
-  Int get blocked => _blocked;
+  UserEntity(this._email,this._access_token,this._refresh_token,this._token_type);
+
+  // Fetch refrsh token
+  String get refresh_token => _refresh_token;
 
   // Fetch email
   String get email => _email;
 
-  // Fetch token
-  String get token => _token;    
+  // Fetch access token
+  String get access_token => _access_token;
+  
+  // Fetch token type
+  String get token_type => _token_type;      
 
 }

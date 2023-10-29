@@ -24,7 +24,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
     return Container(
       color: Colors.blueAccent,
       child: Padding(
-        padding: const EdgeInsets.all(5.0),
+        padding: const EdgeInsets.all(10.0),
         child: Theme(
           data: Theme.of(context).copyWith(primaryColor: Colors.grey[600]),
           child: TextField(
@@ -36,7 +36,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
             },            
             decoration: InputDecoration(
               border: const OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(2.0)),
+                borderRadius: BorderRadius.all(Radius.circular(20.0)),
                 borderSide: BorderSide(
                   width: 0,
                   style: BorderStyle.none,

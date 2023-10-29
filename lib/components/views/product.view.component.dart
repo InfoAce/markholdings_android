@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:markholdings_ecommerce/store/actions/product.action.store.dart';
 import 'package:provider/provider.dart';
-import 'package:sticky_headers/sticky_headers/widget.dart';
 import 'package:redux/redux.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -15,7 +14,7 @@ class ProductView extends StatefulWidget {
 }
 
 class _ProductViewState extends State<ProductView> {
-  
+
   @override
   Widget build(BuildContext context) {
     int price = widget.product["price"];
@@ -30,7 +29,7 @@ class _ProductViewState extends State<ProductView> {
               final store   = Provider.of<Store>(context,listen: false);   
               store.dispatch(ViewProduct({}));                  
             }, 
-            child: Icon(Icons.chevron_left),
+            child: const Icon(Icons.chevron_left),
           ),
       ),
       body:  Column(
