@@ -1,9 +1,8 @@
 import 'package:device_info/device_info.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:markholdings_ecommerce/database/init.database.dart';
-import 'package:markholdings_ecommerce/models/user.model.dart';
 import 'package:markholdings_ecommerce/screens/splash.screen.dart';
 import 'package:markholdings_ecommerce/store/actions/env.action.store.dart';
+import 'package:markholdings_ecommerce/store/actions/tab.action.store.dart';
 import 'package:markholdings_ecommerce/store/app.store.dart';
 import 'package:markholdings_ecommerce/store/actions/auth.action.store.dart';
 import 'package:markholdings_ecommerce/store/actions/device.action.store.dart';
@@ -15,6 +14,7 @@ import 'package:markholdings_ecommerce/screens/home.screen.dart';
 // import 'package:markholdings_ecommerce/screens/splash.screen.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:data_cache_manager/data_cache_manager.dart';
 
 late Store<AppState> store;
 
@@ -33,9 +33,11 @@ Future<void> main() async {
   };
 
   
-  store.dispatch(UpdateAuth({"token":"","user":{} })); 
+  store.dispatch(UpdateAuth({})); 
 
   store.dispatch(UpdateEnv({...dotenv.env}));
+
+  store.dispatch(UpdateTab(0));
 
   store.dispatch(UpdateDevice({"name":androidInfo.model,"id":androidInfo.androidId}));
 
@@ -51,6 +53,7 @@ class MarkholdingsApp extends StatelessWidget{
   MarkholdingsApp({super.key,this.user,this.headers});
 
   final baseUrl = dotenv.env['BASE_URL'];
+  final _manager = DefaultDataCacheManager.instance;
   final dynamic user;
   dynamic headers;
 
@@ -59,6 +62,7 @@ class MarkholdingsApp extends StatelessWidget{
     return MultiProvider(
       providers: [
         Provider<Store>( create: (_) => store ),
+        Provider<DataCacheManager>( create: (_) => _manager ),
         Provider<ApiService>( create: (_) => ApiService(
             headers,
             "$baseUrl/api/android"

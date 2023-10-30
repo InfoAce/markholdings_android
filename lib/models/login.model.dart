@@ -6,9 +6,6 @@ class LoginModel{
   // Initialize password
   late String password;
 
-  // Initialize device
-  late String deviceId;
-
   // Initilize constructor
-  LoginModel({this.email = "",this.password = "",this.deviceId = ""});
+  LoginModel({this.email = "",this.password = ""});
 }

@@ -1,22 +1,18 @@
 class LoginValidation {
   
-  final String access_token;
+  final Map<String, dynamic> auth;
   
-  final String refresh_token;
-
-  final String token_type;
+  final Map<String, dynamic> user;
 
   const LoginValidation({
-    required this.access_token,
-    required this.refresh_token,
-    required this.token_type,
+    required this.auth,
+    required this.user,
   });
 
   factory LoginValidation.fromJson(Map<String,dynamic> json) {
     return LoginValidation(
-      access_token:  json['access_token'],
-      refresh_token: json['refresh_token'],
-      token_type:    json['token_type'],
+      auth: json['auth'],
+      user: json['user'],
     );
   }  
 

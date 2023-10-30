@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:markholdings_ecommerce/main.dart';
-import 'package:markholdings_ecommerce/models/user.model.dart';
 import 'package:markholdings_ecommerce/screens/home.screen.dart';
 import 'package:markholdings_ecommerce/services/api.service.dart';
 import 'package:markholdings_ecommerce/store/actions/auth.action.store.dart';
@@ -28,20 +27,12 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   @override
   void initState() {
     // TODO: implement initState
-    fetchStoredUser();
     super.initState();    
   }
 
   @override
   void didChangeDependencies(){
     initData(context);
-  }
-
-  Future<void> fetchStoredUser() async{
-    final storedUser = await UserModel().first();  
-    setState(() {
-      user = storedUser;
-    });
   }
 
   Future<void> initData(context) async{

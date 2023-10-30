@@ -3,7 +3,7 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:markholdings_ecommerce/components/views/login.view.component.dart';
 import 'package:markholdings_ecommerce/components/views/profile.view.component.dart';
 import 'package:markholdings_ecommerce/components/views/signup.view.component.dart';
-import 'package:markholdings_ecommerce/models/user.model.dart';
+// import 'package:markholdings_ecommerce/models/user.model.dart';
 import 'package:markholdings_ecommerce/store/app.store.dart';
 
 class AccountTab extends StatefulWidget {

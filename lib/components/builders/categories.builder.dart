@@ -121,7 +121,6 @@ class _CategoriesBuildersState extends State<CategoriesBuilders> {
     }  else {
       // If the server did not return a 200 OK response,
       // then throw an exception.      
-      print(response.statusCode);
       throw Exception("Something went wrong.");
     }
 

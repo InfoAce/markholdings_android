@@ -55,14 +55,13 @@ class _ProductBaseState extends State<ProductBase> {
               children: <Widget>[              
                 Container(
                   width: MediaQuery.of(context).size.width * 0.5,
-                  height: MediaQuery.of(context).size.width,
                   color: Colors.black.withOpacity(0.6),
                 ),
                 widget.product['tag'] != null ?
                   DefaultTextStyle(
                     textAlign: TextAlign.left,
-                    style: const TextStyle(
-                      fontSize: 25,
+                    style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.width * 0.1,
                       fontFamily: 'Rubik',
                       color: Colors.white
                     ),
@@ -73,7 +72,7 @@ class _ProductBaseState extends State<ProductBase> {
                   ) 
                 : const Text(''),  
                 Container(
-                  padding: const EdgeInsets.all(5.0),
+                  padding: const EdgeInsets.all(10.0),
                   alignment: Alignment.bottomLeft,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -90,46 +89,46 @@ class _ProductBaseState extends State<ProductBase> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      SingleChildScrollView(
-                        child: Padding(
-                          padding: EdgeInsets.only(bottom: 10.0),
-                          child: Row(
-                            children: [
-                                DefaultTextStyle(
-                                  textAlign: TextAlign.start,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: 'Rubik',
-                                    color: Colors.white
-                                  ),
-                                  child: Badge(
-                                    label: Text("Category: $category"),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                ),
-                                // Padding(
-                                //   padding: EdgeInsets.only(left:5.0),
-                                //   child: DefaultTextStyle(
-                                //     textAlign: TextAlign.start,
-                                //     style: const TextStyle(
-                                //       fontSize: 25,
-                                //       fontFamily: 'Rubik',
-                                //       color: Colors.white
-                                //     ),
-                                //     child: Badge(
-                                //       label: Text("Sub Categories: $productCategoriesCount"),
-                                //       backgroundColor: Colors.blueAccent,
-                                //     ),
-                                //   ),
-                                // ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      // SingleChildScrollView(
+                      //   child: Padding(
+                      //     padding: EdgeInsets.only(bottom: 10.0),
+                      //     child: Row(
+                      //       children: [
+                      //           DefaultTextStyle(
+                      //             textAlign: TextAlign.start,
+                      //             style: const TextStyle(
+                      //               fontSize: 14,
+                      //               fontFamily: 'Rubik',
+                      //               color: Colors.white
+                      //             ),
+                      //             child: Badge(
+                      //               label: Text("Category: $category"),
+                      //               backgroundColor: Colors.green,
+                      //             ),
+                      //           ),
+                      //           // Padding(
+                      //           //   padding: EdgeInsets.only(left:5.0),
+                      //           //   child: DefaultTextStyle(
+                      //           //     textAlign: TextAlign.start,
+                      //           //     style: const TextStyle(
+                      //           //       fontSize: 25,
+                      //           //       fontFamily: 'Rubik',
+                      //           //       color: Colors.white
+                      //           //     ),
+                      //           //     child: Badge(
+                      //           //       label: Text("Sub Categories: $productCategoriesCount"),
+                      //           //       backgroundColor: Colors.blueAccent,
+                      //           //     ),
+                      //           //   ),
+                      //           // ),
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
                       DefaultTextStyle(
                         textAlign: TextAlign.start,
-                        style: const TextStyle(
-                          fontSize: 16,
+                        style: TextStyle(
+                          fontSize: MediaQuery.of(context).size.width * 0.04,
                           fontFamily: 'Rubik',
                           color: Colors.white
                         ),

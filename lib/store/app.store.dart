@@ -2,6 +2,7 @@ import 'package:markholdings_ecommerce/store/actions/auth.action.store.dart';
 import 'package:markholdings_ecommerce/store/actions/device.action.store.dart';
 import 'package:markholdings_ecommerce/store/actions/env.action.store.dart';
 import 'package:markholdings_ecommerce/store/actions/product.action.store.dart';
+import 'package:markholdings_ecommerce/store/actions/tab.action.store.dart';
 import 'package:markholdings_ecommerce/store/actions/user.action.store.dart';
 
 class AppState {
@@ -15,6 +16,9 @@ class AppState {
   // Get device info
   late final Map<String,dynamic> _env;
 
+  // Get current tab index
+  late final int _tab;
+
   // Get user info
   late final Map<String,dynamic> _user;
 
@@ -22,13 +26,15 @@ class AppState {
   late final Map<String,dynamic> _product;
 
   // Initializa state
-  AppState(this._auth,this._device,this._env,this._user,this._product);
+  AppState(this._auth,this._device,this._env,this._tab,this._user,this._product);
 
   Map<String,dynamic> get auth => _auth;
 
   Map<String,dynamic> get device => _device;
 
   Map<String,dynamic> get env => _env;
+
+  int get tab => _tab;
 
   Map<String,dynamic> get user => _user;
 
@@ -38,6 +44,7 @@ class AppState {
     _auth = {
       "token": "",
     }, 
+    _tab = 0,
     _env =  {},
     _device = {
       "id"  :  "",
@@ -56,6 +63,7 @@ AppState appReducer(AppState state, dynamic action) {
       action.auth,
       state.device,
       state.env,
+      state.tab,
       state.user,
       state.product
     ); 
@@ -65,6 +73,7 @@ AppState appReducer(AppState state, dynamic action) {
       state.auth,
       action.device,
       state.env,
+      state.tab,
       state.user,
       state.product
     );
@@ -74,6 +83,7 @@ AppState appReducer(AppState state, dynamic action) {
       state.auth,
       state.device,
       action.env,
+      state.tab,
       state.user,
       state.product
     );
@@ -83,6 +93,7 @@ AppState appReducer(AppState state, dynamic action) {
       state.auth,
       state.device,
       state.env,
+      state.tab,
       action.user,
       state.product
     );  
@@ -92,9 +103,20 @@ AppState appReducer(AppState state, dynamic action) {
       state.auth,
       state.device,
       state.env,
+      state.tab,
       state.user,
       action.product
     );
-  }   
+  } 
+  if( action is UpdateTab){
+    return AppState(
+      state.auth,
+      state.device,
+      state.env,
+      action.tab,
+      state.user,
+      state.product
+    );
+  }     
   return state;
 }

@@ -1,15 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:data_cache_manager/data_cache_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart';
 import 'package:markholdings_ecommerce/models/login.model.dart';
-import 'package:markholdings_ecommerce/models/user.model.dart';
 import 'package:markholdings_ecommerce/services/api.service.dart';
 import 'package:markholdings_ecommerce/store/actions/auth.action.store.dart';
 import 'package:markholdings_ecommerce/store/actions/user.action.store.dart';
-import 'package:markholdings_ecommerce/store/app.store.dart';
-import 'package:markholdings_ecommerce/validations/authorize.validation.dart';
 import 'package:markholdings_ecommerce/validations/login.validation.dart';
 import 'package:provider/provider.dart';
 import 'package:redux/redux.dart';
@@ -33,7 +30,6 @@ class _LoginViewState extends State<LoginView> {
   bool _obscurePassword                           = true;
   bool _loading                                   = false;
   final baseUrl                                   = dotenv.env['BASE_URL'];
-  bool _authorize                                 = false;
 
   late Uri authorizeUrl;
  
@@ -41,9 +37,6 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   void initState(){
-    setState(() {
-      form.deviceId = widget.deviceInfo['id'];
-    });
     super.initState();
   }
 
@@ -61,7 +54,7 @@ class _LoginViewState extends State<LoginView> {
       child: Container(
         height: MediaQuery.of(context).size.height - ( MediaQuery.of(context).size.height * 0.15),
         padding: EdgeInsets.all(15.0),
-        child: _authorize ? authorizeWebView() : loginWidget(),
+        child: loginWidget(),
       ),
     );
   }
@@ -190,77 +183,10 @@ class _LoginViewState extends State<LoginView> {
         ]
     );
   }
-
-  Widget authorizeWebView(){
-  final webViewController = WebViewController()
-                      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-                      ..setNavigationDelegate(
-                        NavigationDelegate(
-                          onProgress: (int progress) {
-                            // print the loading progress to the console
-                            // you can use this value to show a progress bar if you want
-                            debugPrint("Loading: $progress%");
-                          },
-                          onPageStarted: (String url) {},
-                          onPageFinished: (String url) {},
-                          onWebResourceError: (WebResourceError error) {},
-                          // onNavigationRequest: (NavigationRequest request) {
-                          //   return NavigationDecision.navigate;
-                          // },
-                        ),
-                      )
-                      ..loadRequest(authorizeUrl);    
-    return Expanded(
-      child: WebViewWidget(
-        controller: webViewController
-      )
-    );
-  }
-
-  Future<void> authorize(data,context) async{
-    final userId  = data.token['accessToken']['tokenable_id'];
-    final device  = base64.encode(utf8.encode(jsonEncode(widget.deviceInfo)));
-    final store   = Provider.of<Store>(context,listen: false);       
-    setState(() {
-      authorizeUrl = Uri.parse("$baseUrl/authorize/$device/$userId".toString());
-      _authorize   = true;
-    });
-    ScaffoldMessenger.of(context).showSnackBar( const SnackBar(
-      backgroundColor: Colors.blueAccent,
-      content: Row(
-        children: [
-          Icon(
-            color: Colors.white,
-            Icons.info
-          ),
-          Flexible(child: Text('Authorize this device.'))
-        ],
-      ),
-    ));  
-    if( _authorize ){
-      final api   = Provider.of<ApiService>(context,listen: false);
-      final Timer timer = Timer.periodic(const Duration(seconds:2), (timer) async{
-        final deviceId = widget.deviceInfo['id'];
-        final response = await api.get(Uri.parse('authorize/device/$deviceId'.toString()));
-        switch(response.statusCode){
-          case 200:
-            AuthorizationValidation authorize = AuthorizationValidation.fromJson(jsonDecode(response.body));  
-            UserModel().create(email: authorize.user['email'], access_token: data['access_token'], refresh_token: data['refresh_token'], token_type: data['token_type']);  
-            store.dispatch(UpdateUser(authorize.user));
-            setState(() {
-              _authorize = false;
-              timer.cancel();
-            });   
-          break;
-        }
-
-      });
-    }
-  }
-
   Future<dynamic> login(context) async { 
     setState(() => _loading = true ); 
-    final store   = Provider.of<Store>(context,listen: false);
+    final store        = Provider.of<Store>(context,listen: false);
+    final cacheManager = Provider.of<DataCacheManager>(context,listen: false);
     final response = await Provider.of<ApiService>(context,listen: false)
                                    .post(
                                       Uri.parse('/auth/login'.toString()),
@@ -275,21 +201,9 @@ class _LoginViewState extends State<LoginView> {
       case 200:
         setState(() => _loading = false ); 
         LoginValidation data = LoginValidation.fromJson(jsonDecode(response.body));
-        UserModel().create(email: form.email, access_token: data.access_token, refresh_token: data.refresh_token, token_type: data.token_type );  
-        store.dispatch(
-          UpdateAuth({
-            "token": data.access_token,
-          })
-        );      
-        Provider.of<ApiService>(context)
-                .get(Uri.parse('auth/profile'.toString()))
-                .then((value){
-                  print(value);
-                });
-        // store.dispatch(UpdateUser(authorize.user));        
-        print(data.access_token);
-        print(data.refresh_token);
-        // authorize(data,context);
+        store.dispatch(UpdateAuth(data.auth));  
+        store.dispatch(UpdateUser(data.user));            
+        await cacheManager.add('auth',{ 'user': data.user, 'token': data.auth });     
       break;
       case 401:
         setState(() => _loading = false ); 
@@ -324,6 +238,5 @@ class _LoginViewState extends State<LoginView> {
         ));                              
       break;
     }                             
-  }  
-
+  } 
 }
