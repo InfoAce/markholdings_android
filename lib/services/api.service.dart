@@ -1,17 +1,19 @@
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class ApiService extends http.BaseClient {
   
-  late final Map<String, String> _defaultHeaders;
+  late Map<String, String> defaultHeaders;
   
   final http.Client _httpClient = http.Client();
+
   late String baseUrl;
 
   ApiService(headers,url){
     baseUrl = url;
-    _defaultHeaders = headers;
+    defaultHeaders = headers;
   }
 
   @override
@@ -21,6 +23,7 @@ class ApiService extends http.BaseClient {
 
   @override
   Future<http.Response> get(url, { Map<String, String>? headers }) async{
+    print(_mergedHeaders(headers));
     return await _httpClient.get(Uri.parse('$baseUrl/$url'), headers: _mergedHeaders(headers));
   }
 
@@ -51,9 +54,9 @@ class ApiService extends http.BaseClient {
 
   Map<String, String> _mergedHeaders(Map<String, String> ? headers) {
     if( headers != null){
-      _defaultHeaders.addAll(headers);
+      defaultHeaders.addAll(headers);
     }
-    return _defaultHeaders;
+    return defaultHeaders;
   }
 
 }

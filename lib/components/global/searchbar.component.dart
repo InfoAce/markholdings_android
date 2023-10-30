@@ -35,6 +35,8 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
               });
             },            
             decoration: InputDecoration(
+              isDense: true,
+              contentPadding: EdgeInsets.all(1),
               border: const OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(5.0)),
                 borderSide: BorderSide(

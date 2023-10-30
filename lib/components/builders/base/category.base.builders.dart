@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class CategoryBase extends StatefulWidget {
   CategoryBase({super.key,required this.category});
@@ -22,117 +23,79 @@ class _CategoryBaseState extends State<CategoryBase> {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-          onTap: (){
-            // DefaultTabController.of(context).animateTo(1);
-            // Navigator.push(
-            //   context, 
-            //   MaterialPageRoute(
-            //     builder: (context) => Home(categoryId: category['id']) )
-            // );
-          },
-          child:  Container(
-            width: MediaQuery.of(context).size.width * 0.5,
-            height: MediaQuery.of(context).size.height * 0.1,
-            margin: EdgeInsets.all(2.0),
-            decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.black.withOpacity(0.4),
-                    Colors.transparent,
-                    Colors.transparent,
-                    Colors.transparent,
-                    Colors.transparent,
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.4),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-                image: DecorationImage(
-                  image: Image.network(widget.category['image_url']).image,
-                  fit: BoxFit.cover,
-              ),
-            ),
-            child:Stack(
-              children: <Widget>[
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.5,
-                  height: MediaQuery.of(context).size.width,
-                  color: Colors.black.withOpacity(0.6),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(5.0),
-                  alignment: Alignment.bottomLeft,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: <Color>[
-                        Colors.black.withAlpha(5),
-                        Colors.black12,
-                        Colors.black45
-                      ],
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Padding(
-                          padding: EdgeInsets.only(bottom: 10.0),
-                          child: Row(
-                            children: [
-                                DefaultTextStyle(
-                                  textAlign: TextAlign.start,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: 'Rubik',
-                                    color: Colors.white
-                                  ),
-                                  child: Badge(
-                                    label: Text("Products: $productsCount"),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(left:5.0),
-                                  child: DefaultTextStyle(
-                                    textAlign: TextAlign.start,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontFamily: 'Rubik',
-                                      color: Colors.white
-                                    ),
-                                    child: Badge(
-                                      label: Text("Sub Categories: $productCategoriesCount"),
-                                      backgroundColor: Colors.blueAccent,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      DefaultTextStyle(
-                        textAlign: TextAlign.start,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontFamily: 'Rubik',
-                          color: Colors.white
-                        ),
-                        child: Text(widget.category['name'])
-                      ),
-                      
-                    ]
-                  ),
-                ),
-              ],
-            )                  
+    return Container(
+      height:  MediaQuery.of(context).size.height * 0.2,
+      width:   MediaQuery.of(context).size.width,
+      margin: EdgeInsets.only(top: 5.0, bottom: 5.0),
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.black.withOpacity(0.4),
+              Colors.black.withOpacity(0.4),
+              Colors.black.withOpacity(0.4),
+              Colors.black.withOpacity(0.4),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-        );
+          image: DecorationImage(
+            image: Image.network(widget.category['image_url']).image,
+            fit: BoxFit.cover,
+          ),
+      ),
+      child: Stack(
+        children: [
+          Container(
+            width: MediaQuery.of(context).size.width,
+            color: Colors.black.withOpacity(0.6),
+          ),  
+          Container(
+            alignment: Alignment.bottomLeft,
+            padding: EdgeInsets.all(10.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.category['name'],
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: MediaQuery.of(context).size.width * 0.05
+                  )
+                ),
+                Text(
+                  "Products: $productsCount",
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: MediaQuery.of(context).size.width * 0.03
+                  )
+                )                                                                                                
+              ]
+            ),
+          ),
+          Container(
+            alignment: Alignment.topRight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [                  
+                IconButton(
+                  icon: const Icon(
+                    Icons.more_vert_outlined,
+                    color: Colors.white,
+                  ),
+                  // padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 18.0),
+                  iconSize: MediaQuery.of(context).size.width * 0.07,
+                  color: Theme.of(context).primaryColor,
+                  onPressed: () {
+                    // final store   = Provider.of<Store>(context,listen: false);   
+                    // store.dispatch(ViewProduct(widget.product));                    
+                  },
+                ),                                            
+              ],
+            ),
+          ),                                                                                                                                                                                                                                                                                        
+        ]
+      )
+    );
   }
 }

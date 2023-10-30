@@ -46,16 +46,9 @@ class _ProductsBuilderState extends State<ProductsBuilder> {
       child:   ListView(
         shrinkWrap: true,
         controller: _scrollController,
-        children: [
-            GridView.count(
-              shrinkWrap: true,
-              crossAxisCount: 2,
-              physics: const ScrollPhysics(),
-              children: widget.products.map<Widget>( (product) {
-                return ProductBase(product: product);
-              }).toList()
-            ) 
-        ]
+        children: widget.products.map<Widget>( (product) {
+          return ProductBase(product: product);
+        }).toList()
       )
     );
   }

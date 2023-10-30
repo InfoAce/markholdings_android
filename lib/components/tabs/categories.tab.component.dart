@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:markholdings_ecommerce/components/builders/categories.builder.dart';
 import 'package:markholdings_ecommerce/components/global/searchbar.component.dart';
 import 'package:sticky_headers/sticky_headers/widget.dart';
@@ -22,23 +23,51 @@ class _CategoriesTabState extends State<CategoriesTab> {
     return SingleChildScrollView(
       child: StickyHeader(
         header: Container(
-          child: CustomSearchBar(placeholder: 'Search for a category',callback: filterCategories),
+          width: MediaQuery.of(context).size.width,
+          decoration: BoxDecoration(
+            color: Colors.blueAccent
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(15.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children:[
+                      Padding(
+                      padding: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.01),
+                      child: const Icon(
+                        Icons.list,
+                        color: Colors.white,
+                      ),                       
+                    ),
+                    Text(
+                      'Categories',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: MediaQuery.of(context).size.width * 0.05
+                      )
+                    ),                       
+                  ]
+                ),                                    
+              ]
+            ),
+          )  ,
         ),
         content: Container(
-          child: const Column(
+          child: Column(
             children: [
               Align(
                 alignment: Alignment.topLeft,
                 child: Padding(
-                  padding: EdgeInsets.only(left: 10.0,top: 5.0),
-                  child: DefaultTextStyle(
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontFamily: 'Rubik',
-                        color: Colors.blueAccent
-                    ),
-                    child: Text("Categories"),
-                  ),
+                  padding: const EdgeInsets.only(left: 10.0,top: 5.0),
+                  child:Text(
+                    'List of categories',
+                    style: GoogleFonts.poppins(
+                      color: Colors.blueAccent,
+                      fontSize: MediaQuery.of(context).size.width * 0.04
+                    )
+                )  
                 ), 
               ),  
               CategoriesBuilders()                

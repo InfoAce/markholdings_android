@@ -1,8 +1,13 @@
+import 'package:data_cache_manager/data_cache_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:markholdings_ecommerce/store/actions/auth.action.store.dart';
+import 'package:markholdings_ecommerce/store/actions/user.action.store.dart';
 import 'package:markholdings_ecommerce/store/app.store.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:redux/redux.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -73,12 +78,14 @@ class _ProfileViewState extends State<ProfileView> {
                         ),
                         iconSize: MediaQuery.of(context).size.width * 0.05,
                         color: Theme.of(context).primaryColor,
-                        onPressed: () {
-                          // num price   = cart['price'];
-                          // setState(() {
-                          //   quantity.value ++;
-                          //   cart['total'].value = (cart['quantity'].value * price);
-                          // });
+                        onPressed: () async{
+                          final store = Provider.of<Store>(context,listen:false);
+                          final cache = Provider.of<DataCacheManager>(context,listen:false);
+
+                          await cache.remove('auth');
+
+                          store.dispatch(UpdateUser({}));
+                          store.dispatch(UpdateAuth({}));
                         },
                       ),
                     ],

@@ -202,8 +202,8 @@ class _LoginViewState extends State<LoginView> {
         setState(() => _loading = false ); 
         LoginValidation data = LoginValidation.fromJson(jsonDecode(response.body));
         store.dispatch(UpdateAuth(data.auth));  
-        store.dispatch(UpdateUser(data.user));            
-        await cacheManager.add('auth',{ 'user': data.user, 'token': data.auth });     
+        store.dispatch(UpdateUser(data.user));         
+        await cacheManager.add('auth',jsonEncode({ 'user': data.user, 'token': data.auth }));  
       break;
       case 401:
         setState(() => _loading = false ); 

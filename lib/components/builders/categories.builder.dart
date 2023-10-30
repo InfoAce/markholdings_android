@@ -61,51 +61,14 @@ class _CategoriesBuildersState extends State<CategoriesBuilders> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height:  MediaQuery.of(context).size.height * 0.8,
+      height:  MediaQuery.of(context).size.height * 0.82,
       width:   MediaQuery.of(context).size.width,
       padding: const EdgeInsets.only(left: 5.0, right: 5.0, bottom: 10.0),
       child: ListView(
         controller: _scrollController,
-        children: [ 
-          categoryList.isNotEmpty ?
-            GridView.count(
-              shrinkWrap: true,
-              crossAxisCount: 2,
-              physics: const ScrollPhysics(),
-              children: categoryList.map( (category) {
-                return CategoryBase(category: category);
-              }).toList()
-            ) : Container(
-              height: MediaQuery.of(context).size.height - ( MediaQuery.of(context).size.height * 0.25),
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: CircularProgressIndicator(
-                      color: Colors.blueAccent,
-                    ),
-                  )
-                ]
-            ), 
-          ),
-          isLoading && categoryList.isNotEmpty ? 
-            Container(
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: CircularProgressIndicator(
-                      color: Colors.blueAccent,
-                    ),
-                  )
-                ]
-              ),
-            ) 
-          : const Padding(padding: EdgeInsets.all(5.0))
- 
-        ]
+        children: categoryList.map( (category) {
+          return CategoryBase(category: category);
+        }).toList()
       )
     );
   }

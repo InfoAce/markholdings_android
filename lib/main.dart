@@ -21,17 +21,23 @@ late Store<AppState> store;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  final _manager = DefaultDataCacheManager.instance;
+  final auth     = await _manager.get('auth');
+
   store = Store<AppState>(appReducer,initialState: AppState.initialState());
 
   await dotenv.load(fileName: "lib/.env");
 
-  AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
   dynamic user                  = {};
   Map<String,String> headers    = { 
     "Content-Type":"application/json",
     "Accept":"application/json"
   };
 
+  if( auth != null ){
+    final authorized = (auth.value as Map<String,dynamic> )['token'];
+    headers[authorized['token_type']] = authorized['access_token'];
+  }
   
   store.dispatch(UpdateAuth({})); 
 
@@ -39,22 +45,19 @@ Future<void> main() async {
 
   store.dispatch(UpdateTab(0));
 
-  store.dispatch(UpdateDevice({"name":androidInfo.model,"id":androidInfo.androidId}));
-
   runApp(StoreProvider(
     store:store,
-    child: MarkholdingsApp(user:user,headers: headers),
+    child: MarkholdingsApp(cache:_manager, headers: headers),
   ));
 
 }
 
 class MarkholdingsApp extends StatelessWidget{
 
-  MarkholdingsApp({super.key,this.user,this.headers});
+  MarkholdingsApp({super.key,required this.cache,this.headers});
 
-  final baseUrl = dotenv.env['BASE_URL'];
-  final _manager = DefaultDataCacheManager.instance;
-  final dynamic user;
+  final baseUrl          = dotenv.env['BASE_URL'];
+  DataCacheManager cache;
   dynamic headers;
 
   @override
@@ -62,7 +65,7 @@ class MarkholdingsApp extends StatelessWidget{
     return MultiProvider(
       providers: [
         Provider<Store>( create: (_) => store ),
-        Provider<DataCacheManager>( create: (_) => _manager ),
+        Provider<DataCacheManager>( create: (_) => cache ),
         Provider<ApiService>( create: (_) => ApiService(
             headers,
             "$baseUrl/api/android"

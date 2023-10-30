@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:data_cache_manager/data_cache_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:markholdings_ecommerce/components/global/searchbar.component.dart';
+import 'package:markholdings_ecommerce/components/views/checkout.view.component.dart';
 import 'package:markholdings_ecommerce/services/api.service.dart';
 import 'package:markholdings_ecommerce/store/actions/tab.action.store.dart';
 import 'package:provider/provider.dart';
@@ -20,7 +20,6 @@ class CartTab extends StatefulWidget {
 class _CartTabState extends State<CartTab> {
 
   List<dynamic> shoppingCart = [];
-  ValueNotifier<num> _total  = ValueNotifier<num>(0);
   
   @override
   void initState(){
@@ -32,50 +31,17 @@ class _CartTabState extends State<CartTab> {
     final user  = store.state.user;
 
     if( user.isNotEmpty ){
-    showModalBottomSheet<void>(
-      isScrollControlled: true,
-      context: context,
-      builder: (BuildContext context) {
-        return SizedBox(
-        height: MediaQuery.of(context).size.height * 0.9,
-        child:  Container(
-          padding: EdgeInsets.all(15.0),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                        "Cart Items",
-                        style: GoogleFonts.poppins(
-                          color: Colors.blueAccent,
-                          fontSize: MediaQuery.of(context).size.width * 0.05
-                        )
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        // Timer.periodic(const Duration(seconds: 1), (timer) {
-                        //   timer.cancel();
-                        //   quantity.value = 1;
-                        // });
-                        Navigator.pop(context);
-                      },
-                      child: Icon(Icons.close)
-                    )                              
-                  ]
-                )
-              ],
-            ),
-          ),
-        ),
-      );
-    });
+      showModalBottomSheet<void>(
+        isScrollControlled: true,
+        context: context,
+        builder: (BuildContext context) {
+          return SizedBox(
+          height: MediaQuery.of(context).size.height * 0.9,
+          child: CheckoutView(items: shoppingCart),
+        );
+      });
     } else {
       store.dispatch(UpdateTab(3));
-      print(store.state.tab);
     }
   }
 
@@ -91,12 +57,58 @@ class _CartTabState extends State<CartTab> {
             ),
             child: Padding(
               padding: EdgeInsets.all(15.0),
-              child: Text(
-                'Shopping cart',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: MediaQuery.of(context).size.width * 0.05
-                )
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children:[
+                       Padding(
+                        padding: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.01),
+                        child: const Icon(
+                          Icons.shopping_cart,
+                          color: Colors.white,
+                        ),                       
+                      ),
+                      Text(
+                        'Shopping cart',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: MediaQuery.of(context).size.width * 0.05
+                        )
+                      ),                       
+                    ]
+                  ),              
+                  TextButton(
+                    onPressed: (){
+                      popup();
+                      // setState(() {
+                      //   num price  = widget.product['price'];
+                      //   total.value = (quantity.value * price);
+                      // });
+
+                    }, 
+                    style:  ButtonStyle(
+                      shape: MaterialStateProperty.all(
+                          const RoundedRectangleBorder(
+                              side: BorderSide(
+                                color: Colors.white, // your color here
+                                width: 1,
+                              ),
+                          ),
+                      )
+                    ),             
+                    isSemanticButton: true,
+                    child: Container(
+                      child: Text(
+                          "Buy now",
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: MediaQuery.of(context).size.width * 0.03
+                          )
+                      ),
+                    )
+                  )                       
+                ]
               ),
             )  ,
           ),
@@ -248,8 +260,19 @@ class _CartTabState extends State<CartTab> {
                             // padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 18.0),
                             iconSize:  MediaQuery.of(context).size.width * 0.06,
                             color: Theme.of(context).primaryColor,
-                            onPressed: () {
+                            onPressed: () async{
+                              final cacheManager = Provider.of<DataCacheManager>(context,listen: false);
+                              final cachedCart   = await cacheManager.get('shopping_cart');
                               
+                              if( cachedCart != null ){
+                                ( cachedCart.value as List ).removeWhere((item) => item['id'] == cart['id'] );
+                                await cacheManager.add('shopping_cart', ( cachedCart.value as List ));
+                              }
+
+                              setState(() {
+                                shoppingCart.removeWhere((item) => item['id'] == cart['id'] );
+                              });
+
                             },
                           ),
                         ),                                                                                                                                                                                                                                                                  
@@ -259,47 +282,31 @@ class _CartTabState extends State<CartTab> {
                 }).toList()
               )
               : Container(
+                alignment: Alignment.center,
                 height: MediaQuery.of(context).size.height * 0.9,
-                child: Text('Test')
+                child:Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.01),
+                      child: const Icon(
+                        Icons.block,
+                        color: Colors.blueAccent,
+                      ),                       
+                    ),
+                    Text(
+                      'Nothing found here.',
+                      style: GoogleFonts.poppins(
+                        color: Colors.blueAccent,
+                        fontSize: MediaQuery.of(context).size.width * 0.05
+                      )
+                    ),    
+                  ]
+                )
               )
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        padding: EdgeInsets.all(5.0),
-        child: TextButton(
-          onPressed: (){
-            popup();
-            // setState(() {
-            //   num price  = widget.product['price'];
-            //   total.value = (quantity.value * price);
-            // });
-
-          }, 
-          style:  ButtonStyle(
-            shape: MaterialStateProperty.all(
-                const RoundedRectangleBorder(
-                    side: BorderSide(
-                      color: Colors.blueAccent, // your color here
-                      width: 1,
-                    ),
-                ),
-            )
-          ),             
-          isSemanticButton: true,
-          child: Container(
-            // color: Colors.blueAccent,
-            padding: EdgeInsets.all(10.0),
-            child: Text(
-                "Buy now",
-                style: GoogleFonts.poppins(
-                  color: Colors.blueAccent,
-                  fontSize: MediaQuery.of(context).size.width * 0.03
-                )
-            ),
-          )
-        )        
-      )
     );
   }
 
@@ -310,12 +317,15 @@ class _CartTabState extends State<CartTab> {
     if( cart != null ){
       ( cart.value as List ).forEach((item) async { 
         String id      = item['id'];
+        print(id);
         Provider.of<ApiService>(context,listen: false)
                 .get(Uri.parse('cart/$id'.toString()))
                 .then((response) {
+                  print(response.body);
                   Map<String,dynamic> product = jsonDecode(response.body)['product'];
                   setState(() {
                     shoppingCart.add({
+                      'id':          item['id'],
                       'name':        product['name'],
                       'category':    product['product_category']['name'],
                       'image_url':   product['image_url'],
