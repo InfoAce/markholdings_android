@@ -29,7 +29,7 @@ class _AccountTabState extends State<AccountTab> with SingleTickerProviderStateM
       height: MediaQuery.of(context).size.height,
       child: StoreConnector<AppState,AppState>(
           builder: (context,AppState state){
-            if( state.user.isEmpty){
+            if( state.auth.isEmpty){
               return DefaultTabController(
                 length: 2, 
                 child: TabBarView(
@@ -40,7 +40,7 @@ class _AccountTabState extends State<AccountTab> with SingleTickerProviderStateM
                   ]
                 )
               );
-            } else if( state.user.isNotEmpty ){
+            } else if( state.auth.isNotEmpty ){
               return ProfileView(); 
             }
             return Container(

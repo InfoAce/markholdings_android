@@ -1,19 +1,17 @@
-import 'package:device_info/device_info.dart';
+
+import 'dart:convert';
+
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:markholdings_ecommerce/screens/splash.screen.dart';
 import 'package:markholdings_ecommerce/store/actions/env.action.store.dart';
 import 'package:markholdings_ecommerce/store/actions/tab.action.store.dart';
 import 'package:markholdings_ecommerce/store/app.store.dart';
 import 'package:markholdings_ecommerce/store/actions/auth.action.store.dart';
-import 'package:markholdings_ecommerce/store/actions/device.action.store.dart';
 import 'package:redux/redux.dart';
 import 'package:markholdings_ecommerce/services/api.service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:markholdings_ecommerce/screens/home.screen.dart';
-// import 'package:markholdings_ecommerce/screens/splash.screen.dart';
 import 'package:provider/provider.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:data_cache_manager/data_cache_manager.dart';
 
 late Store<AppState> store;
@@ -35,7 +33,7 @@ Future<void> main() async {
   };
 
   if( auth != null ){
-    final authorized = (auth.value as Map<String,dynamic> )['token'];
+    final authorized = jsonDecode(auth.value.toString())['token'];
     headers[authorized['token_type']] = authorized['access_token'];
   }
   

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:data_cache_manager/data_cache_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
@@ -35,8 +37,8 @@ class _HomeState extends State<Home> {
     final auth         = await cacheManager.get('auth');
 
     if( auth != null ){
-      store.dispatch(UpdateAuth((auth.value as Map<String,dynamic> )['token']));
-      store.dispatch(UpdateUser((auth.value as Map<String,dynamic> )['user']));
+      store.dispatch(UpdateAuth(jsonDecode((auth.value.toString()))['token']));
+      store.dispatch(UpdateUser(jsonDecode(auth.value.toString())['user']));
     }
     
   }

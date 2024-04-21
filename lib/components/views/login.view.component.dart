@@ -183,20 +183,21 @@ class _LoginViewState extends State<LoginView> {
         ]
     );
   }
+  
   Future<dynamic> login(context) async { 
     setState(() => _loading = true ); 
     final store        = Provider.of<Store>(context,listen: false);
     final cacheManager = Provider.of<DataCacheManager>(context,listen: false);
-    final response = await Provider.of<ApiService>(context,listen: false)
-                                   .post(
-                                      Uri.parse('/auth/login'.toString()),
-                                      body: {
-                                        "email":         form.email,
-                                        "password":      form.password,
-                                        "client_id":     store.state.env['OAUTH_ID'],
-                                        "client_secret": store.state.env['OAUTH_SECRET'],
-                                      }
-                                   );
+    final response     = await Provider.of<ApiService>(context,listen: false)
+                                       .post(
+                                          Uri.parse('/auth/login'.toString()),
+                                          body: {
+                                            "email":      form.email,
+                                            "password":      form.password,
+                                            "client_id":     store.state.env['OAUTH_ID'],
+                                            "client_secret": store.state.env['OAUTH_SECRET'],
+                                          }
+                                        );
     switch(response.statusCode){
       case 200:
         setState(() => _loading = false ); 
@@ -221,7 +222,24 @@ class _LoginViewState extends State<LoginView> {
           ),
         ));      
       break;
+      case 422:
+        setState(() => _loading = false ); 
+        Map<String,dynamic> data = jsonDecode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar( SnackBar(
+          backgroundColor: Colors.blueAccent,
+          content: Row(
+            children: [
+              const Icon(
+                color: Colors.white,
+                Icons.info
+              ),
+              Flexible(child: Text(data['message']))
+            ],
+          ),
+        ));      
+      break;      
       case 404:
+      case 500:
         setState(() => _loading = false ); 
         Map<String,dynamic> data = jsonDecode(response.body);
         ScaffoldMessenger.of(context).showSnackBar( SnackBar(

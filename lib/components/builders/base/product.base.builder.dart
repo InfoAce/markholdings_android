@@ -26,7 +26,6 @@ class _ProductBaseState extends State<ProductBase> {
 
   @override
   void initState(){
-    print(widget.product);
     category = widget.product['product_category']['name'];
     // productCategoriesCount = widget.category['product_categories_count'];
   }

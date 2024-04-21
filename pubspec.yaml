@@ -53,6 +53,8 @@ dependencies:
   flutter_widget_from_html: ^0.14.5+1
   intl: ^0.17.0 
   data_cache_manager: ^1.2.0
+  image_picker: ^1.1.0
+  permission_handler: ^11.0.1
 
 dev_dependencies:
   flutter_test:
