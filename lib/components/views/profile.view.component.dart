@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:android_app/components/builders/base/edit.profile.builder.dart';
 import 'package:android_app/services/api.service.dart';
@@ -7,11 +8,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:android_app/store/actions/auth.action.store.dart';
 import 'package:android_app/store/actions/user.action.store.dart';
 import 'package:android_app/store/app.store.dart';
 import 'package:intl/intl.dart';
+import 'package:mime/mime.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:redux/redux.dart';
@@ -26,6 +29,7 @@ class ProfileView extends StatefulWidget {
 class _ProfileViewState extends State<ProfileView> {
   
   ValueNotifier<String> profileImage                 = ValueNotifier<String>('');
+  ValueNotifier<String> _                 = ValueNotifier<String>('');
   
   @override
   Widget build(BuildContext context) {
@@ -70,11 +74,7 @@ class _ProfileViewState extends State<ProfileView> {
                             return EditProfile(profile: state.user);
                           }
                         ); 
-                          // num price   = cart['price'];
-                          // setState(() {
-                          //   quantity.value ++;
-                          //   cart['total'].value = (cart['quantity'].value * price);
-                          // });
+                        
                         },
                       ),              
                       IconButton(
@@ -281,9 +281,11 @@ class _ProfileViewState extends State<ProfileView> {
                   child: ValueListenableBuilder<String> (
                     valueListenable: profileImage,
                     builder: (BuildContext context, String value,child) {
+
                       if( value.isNotEmpty ){
-                        uploadImage();
+                        uploadImage(context);
                       }
+
                       return value.isNotEmpty ? CircleAvatar(
                         radius: MediaQuery.of(context).size.height * 0.07,
                         backgroundColor: Colors.white,
@@ -335,19 +337,43 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
- Future<void> uploadImage() async{
-    Provider.of<ApiService>(context,listen: false)
-            .post(
-              Uri.parse('auth/upload/image'.toString()),
-              body:{ "image": File(profileImage.value) }
-            )
-            .then((response) { 
-              print(response.body);
-              switch(response.statusCode){
-                case 200:
-                  
-                break;
-              }
-            });
+ Future<dynamic> uploadImage(BuildContext context) async {
+
+    final store        = Provider.of<Store>(context,listen: false);
+    String? mimeType   = lookupMimeType(profileImage.value);
+    String base64Image = base64.encode(File(profileImage.value).readAsBytesSync());
+
+    final response     = await Provider.of<ApiService>(context,listen: false)
+                                       .post(
+                                        Uri.parse('/auth/upload/image'.toString()),
+                                        body: jsonEncode({ "base64Image": base64Image, "mimeType": mimeType })
+                                       );                          
+
+    switch(response.statusCode){
+      case 200:
+        Map<String,dynamic> data = jsonDecode(response.body);
+        store.dispatch(UpdateUser(data['user']));         
+        ScaffoldMessenger.of(context).showSnackBar( const SnackBar(
+          backgroundColor: Colors.white,
+          content: Row(
+            children: [
+              Icon(
+                color: Colors.blueAccent,
+                Icons.check_circle_rounded,
+              ),
+              Flexible(
+                child: Text(
+                  'Profile image has been updated.',
+                  style: TextStyle(color: Colors.blueAccent) 
+                )
+              )
+            ],
+          ),
+        ));      
+        setState(() { profileImage.value = ""; });      
+      break;
+      case 422:
+      break;
+    }
   }
 }

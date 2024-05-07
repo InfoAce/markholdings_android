@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:android_app/components/views/checkout.view.component.dart';
 import 'package:android_app/services/api.service.dart';
 import 'package:android_app/store/actions/tab.action.store.dart';
+import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 import 'package:sticky_headers/sticky_headers/widget.dart';
 import 'package:redux/redux.dart';
@@ -23,26 +24,8 @@ class _CartTabState extends State<CartTab> {
   
   @override
   void initState(){
-    fetchShoppingCart();
-  }
-
-  Future<void> popup() async{
-    final store = Provider.of<Store>(context,listen: false);
-    final user  = store.state.user;
-
-    if( user.isNotEmpty ){
-      showModalBottomSheet<void>(
-        isScrollControlled: true,
-        context: context,
-        builder: (BuildContext context) {
-          return SizedBox(
-          height: MediaQuery.of(context).size.height * 0.9,
-          child: CheckoutView(items: shoppingCart),
-        );
-      });
-    } else {
-      store.dispatch(UpdateTab(3));
-    }
+    super.initState();
+    fetchShoppingCart(super.context);
   }
 
   @override
@@ -80,7 +63,7 @@ class _CartTabState extends State<CartTab> {
                   ),              
                   TextButton(
                     onPressed: (){
-                      popup();
+                      popup(context);
                       // setState(() {
                       //   num price  = widget.product['price'];
                       //   total.value = (quantity.value * price);
@@ -260,19 +243,8 @@ class _CartTabState extends State<CartTab> {
                             // padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 18.0),
                             iconSize:  MediaQuery.of(context).size.width * 0.06,
                             color: Theme.of(context).primaryColor,
-                            onPressed: () async{
-                              final cacheManager = Provider.of<DataCacheManager>(context,listen: false);
-                              final cachedCart   = await cacheManager.get('shopping_cart');
-                              
-                              if( cachedCart != null ){
-                                ( cachedCart.value as List ).removeWhere((item) => item['id'] == cart['id'] );
-                                await cacheManager.add('shopping_cart', ( cachedCart.value as List ));
-                              }
-
-                              setState(() {
-                                shoppingCart.removeWhere((item) => item['id'] == cart['id'] );
-                              });
-
+                            onPressed: () {
+                              _showMyDialog(cart,context);                            
                             },
                           ),
                         ),                                                                                                                                                                                                                                                                  
@@ -309,8 +281,27 @@ class _CartTabState extends State<CartTab> {
       ),
     );
   }
+  
+  Future<void> popup(BuildContext context) async{
+    final store = Provider.of<Store>(context,listen: false);
+    final user  = store.state.user;
 
-  Future<void> fetchShoppingCart() async{
+    if( user.isNotEmpty ){
+      showModalBottomSheet<void>(
+        isScrollControlled: true,
+        context: context,
+        builder: (BuildContext context) {
+          return SizedBox(
+          height: MediaQuery.of(context).size.height * 0.9,
+          child: CheckoutView(items: shoppingCart),
+        );
+      });
+    } else {
+      store.dispatch(UpdateTab(3));
+    }
+  }
+
+  Future<void> fetchShoppingCart(BuildContext context) async{
     
     final cacheManager = Provider.of<DataCacheManager>(context,listen: false);
     final cart         = await cacheManager.get('shopping_cart');
@@ -340,5 +331,56 @@ class _CartTabState extends State<CartTab> {
     }
     
   }  
+
+  Future<void> _showMyDialog(cart, BuildContext context) async {
+    final cacheManager = Provider.of<DataCacheManager>(context,listen: false);
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Are you sure ?'),
+          content: Text("You are about to remove " + cart['name'] + " from the cart list. This process is irreversible."),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor:  Colors.redAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              child: const Text('Yes', style: TextStyle(color: Colors.white)),
+              onPressed: () async{
+                final cachedCart   = await cacheManager.get('shopping_cart');
+                
+                if( cachedCart != null ){
+                  ( cachedCart.value as List ).removeWhere((item) => item['id'] == cart['id'] );
+                  await cacheManager.add('shopping_cart', ( cachedCart.value as List ));
+                }
+
+                setState(() {
+                  shoppingCart.removeWhere((item) => item['id'] == cart['id'] );
+                });
+
+                Navigator.pop(context);
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor:  Colors.blueAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),              
+              child: const Text('No', style: TextStyle(color: Colors.white)),
+              onPressed: () async{
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
   
 }

@@ -28,8 +28,8 @@ Future<void> main() async {
 
   dynamic user                  = {};
   Map<String,String> headers    = { 
-    "Content-Type":"application/json",
-    "Accept":"application/json"
+    "content-type":"application/json; charset=utf-8",
+    "accept":"application/json"
   };
 
   if( auth != null ){

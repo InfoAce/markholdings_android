@@ -286,7 +286,14 @@ class _ProductBaseState extends State<ProductBase> {
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           ElevatedButton(
-                                            child: const Text('Add'),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:  Colors.blueAccent,
+                                              // minimumSize: const Size.fromHeight(50),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(20),
+                                              ),
+                                            ),                                            
+                                            child: const Text('Add To Cart',style: TextStyle(color: Colors.white),),
                                             onPressed: () {
                                               addProduct({
                                                 'id':          widget.product['id'],
@@ -302,6 +309,24 @@ class _ProductBaseState extends State<ProductBase> {
                                               });
 
                                               Navigator.pop(context);
+
+                                              ScaffoldMessenger.of(context).showSnackBar( SnackBar(
+                                                backgroundColor: Colors.white,
+                                                content: Row(
+                                                  children: [
+                                                    const Icon(
+                                                      color: Colors.blueAccent,
+                                                      Icons.check_circle_rounded,
+                                                    ),
+                                                    Flexible(
+                                                      child: Text(
+                                                        widget.product['name'] + ' has been added to cart.',
+                                                        style: TextStyle(color: Colors.blueAccent) 
+                                                      )
+                                                    )
+                                                  ],
+                                                ),
+                                              ));       
                                             },
                                           ),
                                         ]

@@ -191,12 +191,12 @@ class _LoginViewState extends State<LoginView> {
     final response     = await Provider.of<ApiService>(context,listen: false)
                                        .post(
                                           Uri.parse('/auth/login'.toString()),
-                                          body: {
-                                            "email":      form.email,
+                                          body: jsonEncode({
+                                            "email":         form.email,
                                             "password":      form.password,
                                             "client_id":     store.state.env['OAUTH_ID'],
                                             "client_secret": store.state.env['OAUTH_SECRET'],
-                                          }
+                                          })
                                         );
     switch(response.statusCode){
       case 200:
