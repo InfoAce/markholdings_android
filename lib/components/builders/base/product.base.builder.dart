@@ -21,6 +21,8 @@ class _ProductBaseState extends State<ProductBase> {
   late String category;
   late int productCategoriesCount;
   late List<dynamic> cart;
+  DataCacheManager? cacheManager;
+  Store? store;
 
   ValueNotifier<bool> _inCart = ValueNotifier<bool>(false);
   ValueNotifier<num> quantity = ValueNotifier<num>(1);
@@ -28,9 +30,25 @@ class _ProductBaseState extends State<ProductBase> {
 
   @override
   void initState(){
+    super.initState();
+
+    cacheManager = Provider.of<DataCacheManager>(super.context,listen: false);
+    store        = Provider.of<Store>(super.context,listen:false);
+    
     fetchCart();
-    category = widget.product['product_category']['name'];
-    // productCategoriesCount = widget.category['product_categories_count'];
+
+    setState(() {
+
+      if( store?.state.user['type'] == 'personal'){
+        total.value = quantity.value * widget.product['price'];      
+      }
+
+      if( store?.state.user['type'] == 'corporate'){
+        total.value = quantity.value * widget.product['corporate_price'];      
+      }      
+
+      category    = widget.product['product_category']['name'];    
+    });
   }
 
   @override
@@ -124,16 +142,15 @@ class _ProductBaseState extends State<ProductBase> {
                             context: context,
                             builder: (BuildContext context) {
                               return SizedBox(
-                                height: MediaQuery.of(context).size.height * 0.75,
+                                height: MediaQuery.of(context).size.height * 0.9,
                                 child:  Container(
-                                  padding: EdgeInsets.all(15.0),
+                                  padding: const EdgeInsets.all(15.0),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.start,
-                                    // mainAxisSize: MainAxisSize.min,
                                     children: <Widget>[
                                       Padding(
-                                        padding: EdgeInsets.only(bottom: 10.0),
+                                        padding: const EdgeInsets.only(bottom: 10.0),
                                         child: Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
@@ -209,15 +226,6 @@ class _ProductBaseState extends State<ProductBase> {
                                                     ),
                                                   ),
                                                 );                              
-                                                // return Text(
-                                                //   '$count',
-                                                //   textAlign: TextAlign.center,
-                                                //   style: const TextStyle(
-                                                //     color: Colors.black87,
-                                                //     fontSize: 18.0,
-                                                //     fontWeight: FontWeight.w500,
-                                                //   ),
-                                                // );
                                               }, 
                                             ),                                                                                                                                                                                                        
                                           ]
@@ -311,17 +319,17 @@ class _ProductBaseState extends State<ProductBase> {
                                               Navigator.pop(context);
 
                                               ScaffoldMessenger.of(context).showSnackBar( SnackBar(
-                                                backgroundColor: Colors.white,
+                                                backgroundColor: Colors.blueAccent,
                                                 content: Row(
                                                   children: [
                                                     const Icon(
-                                                      color: Colors.blueAccent,
+                                                      color: Colors.white,
                                                       Icons.check_circle_rounded,
                                                     ),
                                                     Flexible(
                                                       child: Text(
                                                         widget.product['name'] + ' has been added to cart.',
-                                                        style: TextStyle(color: Colors.blueAccent) 
+                                                        style: TextStyle(color: Colors.white) 
                                                       )
                                                     )
                                                   ],
@@ -350,8 +358,7 @@ class _ProductBaseState extends State<ProductBase> {
                   iconSize: MediaQuery.of(context).size.width * 0.07,
                   color: Theme.of(context).primaryColor,
                   onPressed: () {
-                    final store   = Provider.of<Store>(context,listen: false);   
-                    store.dispatch(ViewProduct(widget.product));                    
+                    store?.dispatch(ViewProduct(widget.product));                    
                   },
                 ),                                            
               ],
@@ -376,18 +383,17 @@ class _ProductBaseState extends State<ProductBase> {
   
   Future<void> addProduct(Map<String,dynamic> data) async{
     
-    final cacheManager = Provider.of<DataCacheManager>(context,listen: false);
-    final shoppingCart = await cacheManager.get('shopping_cart');
+    final shoppingCart = await cacheManager?.get('shopping_cart');
     dynamic cart       = [];
 
     if( shoppingCart != null ){
       cart = shoppingCart.value;
       cart.add(data);
-      await cacheManager.remove('shopping_cart');
-      await cacheManager.add('shopping_cart',cart);  
+      await cacheManager?.remove('shopping_cart');
+      await cacheManager?.add('shopping_cart',cart);  
     } else {
       cart.add(data);
-      await cacheManager.add('shopping_cart',cart);
+      await cacheManager?.add('shopping_cart',cart);
     }
 
     if( _inCart.value == false ){
@@ -397,14 +403,15 @@ class _ProductBaseState extends State<ProductBase> {
   }
 
   Future<void> fetchCart() async{
-    final cacheManager = Provider.of<DataCacheManager>(context,listen: false);
-    final shoppingCart = await cacheManager.get('shopping_cart');
+    final shoppingCart = await cacheManager?.get('shopping_cart');
 
-    ( shoppingCart?.value as List ).forEach( (product){
-      if( product['id'] == widget.product['id'] ){
-        _inCart.value = true;
-      }
-    });
+    if( shoppingCart != null ) {
+      ( shoppingCart?.value as List ).forEach( (product){
+        if( product['id'] == widget.product['id'] ){
+          _inCart.value = true;
+        }
+      });
+    }
 
   }  
 }

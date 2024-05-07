@@ -234,36 +234,29 @@ class _EditProfileState extends State<EditProfile> {
         case 200:
           setState(() {  _loading = false; });
           Map<String,dynamic> user = jsonDecode(response.body)['user'];
-          store.dispatch(UpdateUser(user));        
+          store.dispatch(UpdateUser(user));     
+          Navigator.pop(context);   
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            backgroundColor: Colors.greenAccent,
+            backgroundColor: Colors.blueAccent,
             content: Row(
               children: [
                 Icon(
                   color: Colors.white,
                   Icons.info
                 ),
-                Flexible(child: Text('Your profile has been saved.'))
+                Flexible(
+                  child: Text(
+                    'Your profile has been saved.',
+                    style: TextStyle(color: Colors.white ),
+                    )
+                )
               ],
             ),
           ));          
         break;
       }
 
-    } catch (e) {
-
-        // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        //   backgroundColor: Colors.amber,
-        //   content: Row(
-        //     children: [
-        //       Icon(
-        //         color: Colors.white,
-        //         Icons.info
-        //       ),
-        //       Text('There is a missing field. Please check your form.')
-        //     ],
-        //   ),
-        // ));      
+    } catch (e) {   
 
       print(e);
     

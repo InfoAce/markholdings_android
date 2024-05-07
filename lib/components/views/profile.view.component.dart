@@ -41,6 +41,7 @@ class _ProfileViewState extends State<ProfileView> {
         final address           = state.user['address'];
         final type              = state.user['type'];
         final email             = state.user['email'];
+        final pin               = state.user['kra_pin'];
         final pic               = state.user['photo_url'];
         final DateTime dateTime = DateTime.parse(state.user['created_at']);
         final String joinedOn   = DateFormat('dd MMMM yyyy').format(dateTime);
@@ -85,13 +86,7 @@ class _ProfileViewState extends State<ProfileView> {
                         iconSize: MediaQuery.of(context).size.width * 0.05,
                         color: Theme.of(context).primaryColor,
                         onPressed: () async{
-                          final store = Provider.of<Store>(context,listen:false);
-                          final cache = Provider.of<DataCacheManager>(context,listen:false);
-
-                          await cache.remove('auth');
-
-                          store.dispatch(UpdateUser({}));
-                          store.dispatch(UpdateAuth({}));
+                         _logout(context);
                         },
                       ),
                     ],
@@ -204,7 +199,7 @@ class _ProfileViewState extends State<ProfileView> {
                         ),
                       ),
                       Text(
-                        'Account Type',
+                        'Kra Pin',
                         style: GoogleFonts.poppins(
                           color: Colors.blueAccent,
                           fontSize: MediaQuery.of(context).size.width * 0.04,
@@ -217,7 +212,7 @@ class _ProfileViewState extends State<ProfileView> {
                           top: MediaQuery.of(context).size.width * 0.03,
                         ),
                         child: Text(
-                          '$type',
+                          '$pin',
                           style: GoogleFonts.poppins(
                             color: Colors.grey.shade600,
                             fontSize: MediaQuery.of(context).size.width * 0.04,
@@ -354,17 +349,17 @@ class _ProfileViewState extends State<ProfileView> {
         Map<String,dynamic> data = jsonDecode(response.body);
         store.dispatch(UpdateUser(data['user']));         
         ScaffoldMessenger.of(context).showSnackBar( const SnackBar(
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.blueAccent,
           content: Row(
             children: [
               Icon(
-                color: Colors.blueAccent,
+                color: Colors.white,
                 Icons.check_circle_rounded,
               ),
               Flexible(
                 child: Text(
                   'Profile image has been updated.',
-                  style: TextStyle(color: Colors.blueAccent) 
+                  style: TextStyle(color: Colors.white) 
                 )
               )
             ],
@@ -376,4 +371,52 @@ class _ProfileViewState extends State<ProfileView> {
       break;
     }
   }
+
+  Future<void> _logout(BuildContext context) {
+    
+    final store = Provider.of<Store>(context,listen:false);
+    final cache = Provider.of<DataCacheManager>(context,listen:false);
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title:   const Text('Are you sure ?'),
+          content: const Text("You are about to logout."),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor:  Colors.redAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              child: const Text('Yes', style: TextStyle(color: Colors.white)),
+              onPressed: () {
+                cache.remove('auth');
+
+                store.dispatch(UpdateUser({}));
+                store.dispatch(UpdateAuth({}));
+
+                Navigator.pop(context);
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor:  Colors.blueAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),              
+              child: const Text('No', style: TextStyle(color: Colors.white)),
+              onPressed: () async{
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }  
 }

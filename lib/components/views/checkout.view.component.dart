@@ -1,17 +1,23 @@
 import 'dart:convert';
+import 'dart:ffi';
 
+import 'package:data_cache_manager/data_cache_manager.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:android_app/services/api.service.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:redux/redux.dart';
 
 class CheckoutView extends StatefulWidget {
 
-  CheckoutView({super.key,required this.items});
+  CheckoutView({super.key,required this.items, required this.clearItems});
 
   List<dynamic> items = [];
-
+  Function clearItems;
+  
   @override
   State<CheckoutView> createState() => _CheckoutViewState();
 }
@@ -22,7 +28,12 @@ class _CheckoutViewState extends State<CheckoutView> {
 
   final List<String> _paymentOptions         = ["Cash", "Credit" ];
   final List<String> _deliveryOptions        = ["Courier", "Pickup" ];
+  Store? store;
   List<Map<String,dynamic>> _pickupLocations = [];
+  String currency                            = "";
+
+  ValueNotifier<int> totalQuantity           = ValueNotifier<int>(0);
+  ValueNotifier<int> totalAmount             = ValueNotifier<int>(0);
 
   String _paymentOption   = "";
   ValueNotifier<String> _deliveryOption  = ValueNotifier<String>("");
@@ -33,8 +44,18 @@ class _CheckoutViewState extends State<CheckoutView> {
 
   @override
   void initState(){
-    getLocations();
+    
     super.initState();
+    getLocations();
+
+    store = Provider.of<Store>(super.context,listen:false);
+
+    setState(() {
+      currency            = store?.state.user['currency'];
+      totalQuantity.value = widget.items.map((item) => item['quantity'].value ).reduce((value, element) => value + element);
+      totalAmount.value   = widget.items.map((item) => ( item['quantity'].value * item['price']) ).reduce((value, element) => value + element);
+    });
+  
   }
 
   @override
@@ -93,13 +114,18 @@ class _CheckoutViewState extends State<CheckoutView> {
                       fontSize: MediaQuery.of(context).size.width * 0.04
                     )
                 ),
-                Text(
-                    "Checkout",
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w500,
-                      fontSize: MediaQuery.of(context).size.width * 0.035
-                    )
-                ),                
+                ValueListenableBuilder(
+                  valueListenable: totalQuantity, 
+                  builder: (BuildContext context, int value, Widget? child) {     
+                    return Text(
+                        value.toString(),
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w500,
+                          fontSize: MediaQuery.of(context).size.width * 0.035
+                        )
+                    );
+                  },
+                ),                               
               ],
             ),
             Row(
@@ -112,12 +138,17 @@ class _CheckoutViewState extends State<CheckoutView> {
                       fontSize: MediaQuery.of(context).size.width * 0.04
                     )
                 ),
-                Text(
-                    "Checkout",
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w500,
-                      fontSize: MediaQuery.of(context).size.width * 0.035
-                    )
+                ValueListenableBuilder(
+                  valueListenable: totalAmount, 
+                  builder: (BuildContext context, int value, Widget? child) {     
+                    return Text(
+                        currency + " " + value.toString(),
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w500,
+                          fontSize: MediaQuery.of(context).size.width * 0.035
+                        )
+                    );
+                  },
                 ),                
               ],
             ),  
@@ -285,39 +316,49 @@ class _CheckoutViewState extends State<CheckoutView> {
                           return SizedBox();                  
                     }
                   ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _paymentOption.isEmpty || _deliveryOption.value.isEmpty || (_deliveryOption.value == 'courier' ? _pickupLocation.isEmpty : _deliveryDetails.isEmpty )  || _loading ? Colors.grey[400] : Colors.blueAccent,
-                      minimumSize: const Size.fromHeight(50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:  Colors.blueAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                       ),
+                      onPressed: () {
+
+                        if(  _paymentOption.isNotEmpty && _deliveryOption.value.isNotEmpty || (_deliveryOption.value == 'courier' ? _pickupLocation.isNotEmpty : _deliveryDetails.isNotEmpty )  ){   
+                          if( !_loading ){                                                    
+                            submit();
+                          }                       
+                        }  
+                        
+                        if( _paymentOption.isEmpty && _deliveryOption.value.isEmpty || (_deliveryOption.value == 'courier' ? _pickupLocation.isEmpty : _deliveryDetails.isEmpty  ) ){
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                            backgroundColor: Colors.amber,
+                            content: Row(
+                              children: [
+                                Icon(
+                                  color: Colors.white,
+                                  Icons.info
+                                ),
+                                Flexible(
+                                  child: Text(
+                                    'There is a missing field. Please check your form.',
+                                    style: TextStyle(color: Colors.white) 
+                                  )
+                                )
+                              ],
+                            ),
+                          ));
+                        }
+                      },
+                      child: _loading ? 
+                        const CircularProgressIndicator(
+                          color: Colors.white,
+                        ) 
+                        : const Text("Place Order", style: TextStyle( color: Colors.white) ),
                     ),
-                    onPressed: () {
-                      if(  _paymentOption.isNotEmpty && _deliveryOption.value.isNotEmpty || (_deliveryOption.value == 'courier' ? _pickupLocation.isNotEmpty : _deliveryDetails.isNotEmpty )  ){   
-                        if( !_loading ){                                                    
-                          submit();
-                        }                       
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          backgroundColor: Colors.amber,
-                          content: Row(
-                            children: [
-                              Icon(
-                                color: Colors.white,
-                                Icons.info
-                              ),
-                              Text('There is a missing field. Please check your form.')
-                            ],
-                          ),
-                        ));
-                      }
-                    },
-                    child: _loading ? 
-                      const CircularProgressIndicator(
-                        color: Colors.white,
-                      ) 
-                      : const Text("Order"),
                   )                                                                           
                 ],
               ),
@@ -332,7 +373,7 @@ class _CheckoutViewState extends State<CheckoutView> {
 
     Map<String,dynamic> data = {
       "deliveryOption": _deliveryOption.value,
-      "items":          widget.items.map((item) => { "id": item['id'], "quantity": item['quantity'].value, "total": item['total'].value }).toList(),
+      "items":          widget.items.map((item) => { "id": item['id'], "quantity": item['quantity'].value, "price": item['price'], "total": item['total'].value }).toList(),
       "paymentOption":  _paymentOption,
     };
 
@@ -342,29 +383,49 @@ class _CheckoutViewState extends State<CheckoutView> {
       data['pickupLocation'] = _pickupLocation;
     }
 
+    final cacheManager = Provider.of<DataCacheManager>(context,listen: false);
+
     setState(() => _loading = true);
-   
-    Provider.of<ApiService>(context,listen: false)
-            .post(
-              Uri.parse('/cart/order'.toString()),
-              body: data
-            )
-            .then((response) { 
-                print(response.body);
-                switch(response.statusCode){
-                  case 200:
-                  break;
-                }              
-            })
-            .catchError( (error) {
-              setState(() => _loading = false);
-            });
+
+    Response response = await Provider.of<ApiService>(context,listen: false)
+                                      .post(
+                                        Uri.parse('/cart/order'.toString()),
+                                        body: jsonEncode(data)
+                                      );
+    
+    setState(() => _loading = false);
+
+    switch(response.statusCode){
+      case 200:
+        setState(() => _loading = false);    
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          backgroundColor: Colors.blueAccent,
+          content: Row(
+            children: [
+              Icon(
+                color: Colors.white,
+                Icons.info
+              ),
+              Flexible(
+                child: Text('Your order has been received. You will be notified of the order soon.',
+                style: TextStyle(color: Colors.white) 
+                )
+              )
+            ],
+          ),
+        ));    
+        widget.clearItems();
+        await cacheManager.remove('shopping_cart');
+      break;
+      default: 
+        setState(() => _loading = false);
+    }                                 
 
   }
 
   Future<void> getLocations() async{
-    final store = Provider.of<Store>(context,listen: false);
-    final auth  = store.state.auth;
+    final auth  = store?.state.auth;
 
     Provider.of<ApiService>(context,listen: false)
         .get(
