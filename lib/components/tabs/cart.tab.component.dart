@@ -20,8 +20,8 @@ class CartTab extends StatefulWidget {
 
 class _CartTabState extends State<CartTab> {
 
-  ValueNotifier<List> shoppingCart = ValueNotifier<List>([]);
-  
+  ValueNotifier<List> shoppingCart     = ValueNotifier<List>([]);
+
   @override
   void initState(){
     super.initState();

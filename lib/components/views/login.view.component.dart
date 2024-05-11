@@ -128,7 +128,7 @@ class _LoginViewState extends State<LoginView> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(top: 30),
+            padding: const EdgeInsets.only(top: 30),
             child: Column(
               children: [
                 ElevatedButton(
@@ -198,6 +198,7 @@ class _LoginViewState extends State<LoginView> {
                                             "client_secret": store.state.env['OAUTH_SECRET'],
                                           })
                                         );
+                          
     switch(response.statusCode){
       case 200:
         setState(() => _loading = false ); 

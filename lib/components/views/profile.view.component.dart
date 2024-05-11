@@ -28,13 +28,26 @@ class ProfileView extends StatefulWidget {
 
 class _ProfileViewState extends State<ProfileView> {
   
-  ValueNotifier<String> profileImage                 = ValueNotifier<String>('');
-  ValueNotifier<String> _                 = ValueNotifier<String>('');
+  ValueNotifier<String> profileImage = ValueNotifier<String>('');
+  bool _imageLoader                  = false;
   
+  Store? store;
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    
+    store = Provider.of<Store>(context,listen:false);
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return StoreConnector<AppState,AppState>(
       builder: (context,AppState state) {
+
         final firstName         = state.user['first_name'];
         final lastName          = state.user['last_name'];
         final phone             = state.user['phone'];
@@ -45,11 +58,12 @@ class _ProfileViewState extends State<ProfileView> {
         final pic               = state.user['photo_url'];
         final DateTime dateTime = DateTime.parse(state.user['created_at']);
         final String joinedOn   = DateFormat('dd MMMM yyyy').format(dateTime);
+
         return Stack(
           children: [
             Container(
               height:MediaQuery.of(context).size.height * 0.2 ,
-              padding: EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(10.0),
               decoration: const BoxDecoration(
                 color: Colors.blueAccent,
               ),
@@ -72,7 +86,7 @@ class _ProfileViewState extends State<ProfileView> {
                           isScrollControlled: true,
                           context: context,
                           builder: (BuildContext context) {
-                            return EditProfile(profile: state.user);
+                            return EditProfile(profile: state.user,showDialogContext: context);
                           }
                         ); 
                         
@@ -265,10 +279,7 @@ class _ProfileViewState extends State<ProfileView> {
                       final XFile? image       = await picker.pickImage(source: ImageSource.gallery);
 
                       if( image != null){
-                        // selectedImages.add(image);
-                        setState(() {
-                          profileImage.value = image.path;                        
-                        });
+                        uploadImage(context,image.path);
                       }
               
                     }
@@ -276,50 +287,30 @@ class _ProfileViewState extends State<ProfileView> {
                   child: ValueListenableBuilder<String> (
                     valueListenable: profileImage,
                     builder: (BuildContext context, String value,child) {
-
-                      if( value.isNotEmpty ){
-                        uploadImage(context);
-                      }
-
-                      return value.isNotEmpty ? CircleAvatar(
+                      return  CircleAvatar(
                         radius: MediaQuery.of(context).size.height * 0.07,
                         backgroundColor: Colors.white,
                         child: CircleAvatar(
                           radius: MediaQuery.of(context).size.height * 0.07,
-                          backgroundImage: Image.file(File(value)).image,
+                          backgroundImage: value.isEmpty ? Image.network(store?.state.user['photo_url']).image : Image.file(File(value)).image,
                           child: Align(
                             alignment: Alignment.bottomRight,
                             child: CircleAvatar(
                               backgroundColor: Colors.white,
                               radius: MediaQuery.of(context).size.height * 0.018,
-                              child: Icon(
-                                Icons.camera_alt,
-                                size: MediaQuery.of(context).size.height * 0.016,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ) : CircleAvatar(
-                          radius: MediaQuery.of(context).size.height * 0.07,
-                          backgroundColor: Colors.white,
-                          child: CircleAvatar(
-                            radius: MediaQuery.of(context).size.height * 0.07,
-                            backgroundImage: Image.network(pic).image,
-                            child: Align(
-                              alignment: Alignment.bottomRight,
-                              child: CircleAvatar(
-                                backgroundColor: Colors.white,
-                                radius: MediaQuery.of(context).size.height * 0.018,
-                                child: Icon(
+                              child: _imageLoader ?
+                                const CircularProgressIndicator(
+                                  color: Colors.blueAccent,
+                                ) : 
+                                Icon(
                                   Icons.camera_alt,
                                   size: MediaQuery.of(context).size.height * 0.016,
                                   color: Colors.grey.shade600,
-                                ),
-                              ),
+                                )
                             ),
-                          ),
-                        );
+                          )
+                        )
+                      );                      
                     },
                   ),
                 ),
@@ -332,22 +323,24 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
- Future<dynamic> uploadImage(BuildContext context) async {
+ Future<dynamic> uploadImage(BuildContext context,image) async {
 
-    final store        = Provider.of<Store>(context,listen: false);
-    String? mimeType   = lookupMimeType(profileImage.value);
-    String base64Image = base64.encode(File(profileImage.value).readAsBytesSync());
+    setState(() { _imageLoader = true; });
+
+    String? mimeType   = lookupMimeType(image);
+    String base64Image = base64.encode(File(image).readAsBytesSync());
+
 
     final response     = await Provider.of<ApiService>(context,listen: false)
                                        .post(
-                                        Uri.parse('/auth/upload/image'.toString()),
-                                        body: jsonEncode({ "base64Image": base64Image, "mimeType": mimeType })
+                                          Uri.parse('/auth/upload/image'.toString()),
+                                          body: jsonEncode({ "base64Image": base64Image, "mimeType": mimeType })
                                        );                          
 
     switch(response.statusCode){
       case 200:
         Map<String,dynamic> data = jsonDecode(response.body);
-        store.dispatch(UpdateUser(data['user']));         
+        store?.dispatch(UpdateUser(data['user']));         
         ScaffoldMessenger.of(context).showSnackBar( const SnackBar(
           backgroundColor: Colors.blueAccent,
           content: Row(
@@ -365,7 +358,7 @@ class _ProfileViewState extends State<ProfileView> {
             ],
           ),
         ));      
-        setState(() { profileImage.value = ""; });      
+        setState(() { profileImage.value = ""; _imageLoader = false;  });      
       break;
       case 422:
       break;
@@ -374,7 +367,6 @@ class _ProfileViewState extends State<ProfileView> {
 
   Future<void> _logout(BuildContext context) {
     
-    final store = Provider.of<Store>(context,listen:false);
     final cache = Provider.of<DataCacheManager>(context,listen:false);
 
     return showDialog<void>(
@@ -396,8 +388,8 @@ class _ProfileViewState extends State<ProfileView> {
               onPressed: () {
                 cache.remove('auth');
 
-                store.dispatch(UpdateUser({}));
-                store.dispatch(UpdateAuth({}));
+                store?.dispatch(UpdateUser({}));
+                store?.dispatch(UpdateAuth({}));
 
                 Navigator.pop(context);
               },

@@ -30,30 +30,43 @@ class _HomeState extends State<Home> {
     AccountTab()
   ];
 
+  DataCacheManager? cacheManager;
+  Store? store;
+
   Future<void> checkAuth() async{
 
-    final cacheManager = Provider.of<DataCacheManager>(context,listen: false);
-    final store        = Provider.of<Store>(context,listen: false);
-    final auth         = await cacheManager.get('auth');
+    Map<String,dynamic> auth = jsonDecode((await cacheManager?.get('auth'))!.value.toString()) ?? {};
 
-    if( auth != null ){
-      store.dispatch(UpdateAuth(jsonDecode((auth.value.toString()))['token']));
-      store.dispatch(UpdateUser(jsonDecode(auth.value.toString())['user']));
+    if( auth['user']['email_verified_at'] == null ){
+
+      if(!mounted) return;
+
+      Navigator.pushNamed(context, 'verification');
+      
+    }
+
+    if( auth.isNotEmpty && auth.containsKey('token') ){
+            
+      store?.dispatch(UpdateAuth(auth['token']));
+      
+      store?.dispatch(UpdateUser(auth['user']));
+
     }
     
   }
 
   void _onItemTapped(int index) {
-    final store = Provider.of<Store>(context,listen: false);
     setState(() {
-      store.dispatch(UpdateTab(index));
+      store?.dispatch(UpdateTab(index));
     });
   }
 
   @override
   void initState(){
-    checkAuth();
     super.initState();
+    cacheManager = Provider.of<DataCacheManager>(context,listen: false);
+    store        = Provider.of<Store>(context,listen: false);
+    checkAuth();
   }
 
   @override

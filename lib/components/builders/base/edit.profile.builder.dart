@@ -11,9 +11,10 @@ import 'package:provider/provider.dart';
 import 'package:redux/redux.dart';
 
 class EditProfile extends StatefulWidget {
-  EditProfile({super.key, required this.profile});
+  EditProfile({super.key, required this.profile, required this.showDialogContext});
 
-  final Map<String,dynamic> profile;
+  Map<String,dynamic> profile;
+  BuildContext showDialogContext;
 
   @override
   State<EditProfile> createState() => _EditProfileState();
@@ -32,9 +33,9 @@ class _EditProfileState extends State<EditProfile> {
   void initState() {
     _controllerFirstName.text   = widget.profile['first_name'];
     _controllerLastName.text    = widget.profile['last_name'];
-    _controllerAddress.text     = widget.profile['address'];
-    _controllerPhoneNumber.text = widget.profile['phone'];
-    _controllerPin.text         = widget.profile['kra_pin'];
+    _controllerAddress.text     = widget.profile['address']     ?? "";
+    _controllerPhoneNumber.text = widget.profile['phone']       ?? "";
+    _controllerPin.text         = widget.profile['kra_pin']     ?? "";
   }
 
   @override
@@ -230,13 +231,35 @@ class _EditProfileState extends State<EditProfile> {
 
       switch(response.statusCode){
         case 422:
+          setState(() {  _loading = false; });
+
+          Map<String,dynamic> data = jsonDecode(response.body);
+
+          ScaffoldMessenger.of(widget.showDialogContext).showSnackBar(SnackBar(
+            backgroundColor: Colors.blueAccent,
+            content: Row(
+              children: [
+                const Icon(
+                  color: Colors.white,
+                  Icons.info
+                ),
+                Flexible(
+                  child: Text(
+                    data['message'],
+                    style: const TextStyle(color: Colors.white ),
+                    )
+                )
+              ],
+            ),
+          ));          
+          print(jsonDecode(response.body));
         break;
         case 200:
           setState(() {  _loading = false; });
           Map<String,dynamic> user = jsonDecode(response.body)['user'];
           store.dispatch(UpdateUser(user));     
           Navigator.pop(context);   
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          ScaffoldMessenger.of(widget.showDialogContext).showSnackBar(const SnackBar(
             backgroundColor: Colors.blueAccent,
             content: Row(
               children: [

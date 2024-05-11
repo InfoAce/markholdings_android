@@ -57,6 +57,7 @@ dependencies:
   flutter_html: ^3.0.0-beta.2
   intl_phone_number_input: ^0.7.4
   mime: ^1.0.5
+  flutter_verification_code: ^1.1.7
 
 dev_dependencies:
   flutter_test:

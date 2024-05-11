@@ -1,6 +1,8 @@
 
 import 'dart:convert';
 
+import 'package:android_app/screens/verification.screen.dart';
+import 'package:android_app/store/actions/user.action.store.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:android_app/store/actions/env.action.store.dart';
 import 'package:android_app/store/actions/tab.action.store.dart';
@@ -19,8 +21,8 @@ late Store<AppState> store;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final _manager = DefaultDataCacheManager.instance;
-  final auth     = await _manager.get('auth');
+  DataCacheManager cacheManager = DefaultDataCacheManager.instance;
+  Map<String,dynamic> auth      = jsonDecode((await cacheManager?.get('auth'))!.value.toString()) ?? {};
 
   store = Store<AppState>(appReducer,initialState: AppState.initialState());
 
@@ -32,9 +34,13 @@ Future<void> main() async {
     "Accept":       "application/json"
   };
 
-  if( auth != null ){
-    final authorized = jsonDecode(auth.value.toString())['token'];
-    headers['Authorization'] = authorized['token_type'] + ' ' + authorized['access_token'];
+  if( auth.isNotEmpty && auth.containsKey('token') ){
+          
+    store.dispatch(UpdateAuth(auth['token']));
+    
+    store.dispatch(UpdateUser(auth['user']));
+      
+    headers['Authorization'] = auth['token']['token_type'] + ' ' + auth['token']['access_token'];
   }
   
   store.dispatch(UpdateAuth({})); 
@@ -45,7 +51,7 @@ Future<void> main() async {
 
   runApp(StoreProvider(
     store:store,
-    child: MarkholdingsApp(cache:_manager, headers: headers),
+    child: MarkholdingsApp(cache:cacheManager, headers: headers),
   ));
 
 }
@@ -73,7 +79,8 @@ class MarkholdingsApp extends StatelessWidget{
       child: MaterialApp(
         initialRoute: 'home',
         routes: {
-          'home': (context) => const Home(),
+          'home':         (context) => const Home(),
+          'verification': (context) => VerificationScreen()
           // '/':     (context) => const SplashScreen(),
         },
         theme: ThemeData(fontFamily: 'Rubik')

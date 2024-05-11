@@ -34,13 +34,12 @@ class _CheckoutViewState extends State<CheckoutView> {
 
   ValueNotifier<int> totalQuantity           = ValueNotifier<int>(0);
   ValueNotifier<int> totalAmount             = ValueNotifier<int>(0);
+  ValueNotifier<bool> _loading               = ValueNotifier<bool>(false);
+  ValueNotifier<String> _deliveryOption      = ValueNotifier<String>("");
 
-  String _paymentOption   = "";
-  ValueNotifier<String> _deliveryOption  = ValueNotifier<String>("");
-  String _deliveryDetails = "";
-  String _pickupLocation  = "";
-
-  bool _loading = false;
+  String _paymentOption                      = "";
+  String _deliveryDetails                    = "";
+  String _pickupLocation                     = "";
 
   @override
   void initState(){
@@ -328,7 +327,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                       onPressed: () {
 
                         if(  _paymentOption.isNotEmpty && _deliveryOption.value.isNotEmpty || (_deliveryOption.value == 'courier' ? _pickupLocation.isNotEmpty : _deliveryDetails.isNotEmpty )  ){   
-                          if( !_loading ){                                                    
+                          if( !_loading.value ){                                                    
                             submit();
                           }                       
                         }  
@@ -353,11 +352,16 @@ class _CheckoutViewState extends State<CheckoutView> {
                           ));
                         }
                       },
-                      child: _loading ? 
-                        const CircularProgressIndicator(
-                          color: Colors.white,
-                        ) 
-                        : const Text("Place Order", style: TextStyle( color: Colors.white) ),
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: _loading,
+                        builder: (BuildContext context, bool value,child) {
+                          return value ? 
+                            const CircularProgressIndicator(
+                              color: Colors.white,
+                            ) 
+                            : const Text("Place Order", style: TextStyle( color: Colors.white) );
+                        }
+                      ),
                     ),
                   )                                                                           
                 ],
@@ -385,7 +389,7 @@ class _CheckoutViewState extends State<CheckoutView> {
 
     final cacheManager = Provider.of<DataCacheManager>(context,listen: false);
 
-    setState(() => _loading = true);
+    setState(() => _loading.value = true);
 
     Response response = await Provider.of<ApiService>(context,listen: false)
                                       .post(
@@ -393,11 +397,9 @@ class _CheckoutViewState extends State<CheckoutView> {
                                         body: jsonEncode(data)
                                       );
     
-    setState(() => _loading = false);
-
     switch(response.statusCode){
       case 200:
-        setState(() => _loading = false);    
+        setState(() => _loading.value = false);    
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           backgroundColor: Colors.blueAccent,
@@ -419,7 +421,7 @@ class _CheckoutViewState extends State<CheckoutView> {
         await cacheManager.remove('shopping_cart');
       break;
       default: 
-        setState(() => _loading = false);
+        setState(() => _loading.value = false);
     }                                 
 
   }
