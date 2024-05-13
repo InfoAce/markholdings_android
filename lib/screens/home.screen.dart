@@ -35,14 +35,15 @@ class _HomeState extends State<Home> {
 
   Future<void> checkAuth() async{
 
-    Map<String,dynamic> auth = jsonDecode((await cacheManager?.get('auth'))!.value.toString()) ?? {};
+    CachedData? authStore    = await cacheManager?.get('auth'); 
+    Map<String,dynamic> auth = authStore != null ? jsonDecode(authStore.value.toString()) : {};
 
-    if( auth['user']['email_verified_at'] == null ){
+    if( auth != null && auth.containsKey('user') && auth['user']['email_verified_at'] == null ){
 
       if(!mounted) return;
 
       Navigator.pushNamed(context, 'verification');
-      
+
     }
 
     if( auth.isNotEmpty && auth.containsKey('token') ){
@@ -75,7 +76,7 @@ class _HomeState extends State<Home> {
       child: StoreConnector<AppState,AppState>(
         builder: (context,AppState state){
           return Scaffold(
-            backgroundColor: Colors.grey[200],
+            backgroundColor: Colors.white,
             body: SafeArea(
               child: _widgetChildren[state.tab]
             ),

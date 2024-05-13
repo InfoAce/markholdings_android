@@ -18,9 +18,10 @@ import 'package:mime/mime.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:redux/redux.dart';
+import 'package:sticky_headers/sticky_headers/widget.dart';
 
 class ProfileView extends StatefulWidget {
-  const ProfileView({super.key});
+  ProfileView({super.key });
 
   @override
   State<ProfileView> createState() => _ProfileViewState();
@@ -29,98 +30,98 @@ class ProfileView extends StatefulWidget {
 class _ProfileViewState extends State<ProfileView> {
   
   ValueNotifier<String> profileImage = ValueNotifier<String>('');
-  bool _imageLoader                  = false;
-  
+  bool _imageLoader                  = false;  
   Store? store;
-
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    
     store = Provider.of<Store>(context,listen:false);
+  }
 
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<AppState,AppState>(
-      builder: (context,AppState state) {
-
-        final firstName         = state.user['first_name'];
-        final lastName          = state.user['last_name'];
-        final phone             = state.user['phone'];
-        final address           = state.user['address'];
-        final type              = state.user['type'];
-        final email             = state.user['email'];
-        final pin               = state.user['kra_pin'];
-        final pic               = state.user['photo_url'];
-        final DateTime dateTime = DateTime.parse(state.user['created_at']);
-        final String joinedOn   = DateFormat('dd MMMM yyyy').format(dateTime);
-
-        return Stack(
+    return StickyHeader(
+      header: Container(
+        decoration: const BoxDecoration(
+          color: Colors.blueAccent,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              height:MediaQuery.of(context).size.height * 0.2 ,
-              padding: const EdgeInsets.all(10.0),
-              decoration: const BoxDecoration(
-                color: Colors.blueAccent,
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.edit,
-                          color: Colors.white,
-                        ),
-                        iconSize: MediaQuery.of(context).size.width * 0.05,
-                        color: Theme.of(context).primaryColor,
-                        onPressed: () {
-                          
-                        showModalBottomSheet<void>(
-                          isScrollControlled: true,
-                          context: context,
-                          builder: (BuildContext context) {
-                            return EditProfile(profile: state.user,showDialogContext: context);
-                          }
-                        ); 
-                        
-                        },
-                      ),              
-                      IconButton(
-                        icon: const Icon(
-                          Icons.logout,
-                          color: Colors.white,
-                        ),
-                        iconSize: MediaQuery.of(context).size.width * 0.05,
-                        color: Theme.of(context).primaryColor,
-                        onPressed: () async{
-                         _logout(context);
-                        },
-                      ),
-                    ],
+            Row(
+              children:[ 
+                IconButton(
+                  icon: const Icon(
+                    Icons.edit,
+                    color: Colors.white,
                   ),
-                ]
-              )
-            ),
-            Container(
-              margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.2),
-              width:  MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height * 0.75,
-              padding: EdgeInsets.only(
-                left: MediaQuery.of(context).size.height * 0.03,
-                top: MediaQuery.of(context).size.height * 0.1
-              ),
-              decoration: BoxDecoration(
+                  color: Colors.white,
+                  onPressed: () {                    
+                    showModalBottomSheet<void>(
+                      isScrollControlled: true,
+                      context: context,
+                      builder: (BuildContext context) {
+                        return EditProfile(profile: store?.state.user,showDialogContext: context);
+                      }
+                    );                     
+                  },
+                ),
+                Text(
+                  'Account Information',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                  )
+                ),     
+              ]
+            ),              
+            IconButton(
+              icon: const Icon(
+                Icons.logout,
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16.0),
               ),
-              child: SingleChildScrollView(
+              color: Colors.white,
+              onPressed: () async{
+                _logout(context);
+              },
+            ),
+          ],
+        ) 
+      ),
+      content: StoreConnector<AppState,AppState>(
+        builder: (context,AppState state) {
+      
+          final firstName         = state.user['first_name'];
+          final lastName          = state.user['last_name'];
+          final phone             = state.user['phone'];
+          final address           = state.user['address'];
+          final type              = state.user['type'];
+          final email             = state.user['email'];
+          final pin               = state.user['kra_pin'];
+          final pic               = state.user['photo_url'];
+          final DateTime dateTime = DateTime.parse(state.user['created_at']);
+          final String joinedOn   = DateFormat('dd MMMM yyyy').format(dateTime);
+      
+          return Stack(
+            children: [             
+              Container(
+                margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.2),
+                width:  MediaQuery.of(context).size.width,
+                padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.height * 0.03,
+                  top:  MediaQuery.of(context).size.height * 0.1
+                ),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [                     
@@ -258,68 +259,69 @@ class _ProfileViewState extends State<ProfileView> {
                       ),                                                                                                                                                              
                   ],
                 ),
-              )
-            ),
-            Container(
-              alignment: Alignment.topCenter,
-              margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.13),
-              child: SizedBox(
-                child: InkWell(
-                  onTap:  () async {
-
-                    var storageStatus = await Permission.storage.status;
-
-                    if( storageStatus.isDenied ){
-                      await Permission.storage.request();
-                    }
-
-                    if( storageStatus.isGranted ){
-
-                      final ImagePicker picker = ImagePicker();
-                      final XFile? image       = await picker.pickImage(source: ImageSource.gallery);
-
-                      if( image != null){
-                        uploadImage(context,image.path);
+              ),
+              Container(
+                alignment: Alignment.topCenter,
+                margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.13),
+                // color: Colors.blueAccent,
+                child: SizedBox(
+                  child: InkWell(
+                    onTap:  () async {
+      
+                      var storageStatus = await Permission.storage.status;
+      
+                      if( storageStatus.isDenied ){
+                        await Permission.storage.request();
                       }
-              
-                    }
-                  },
-                  child: ValueListenableBuilder<String> (
-                    valueListenable: profileImage,
-                    builder: (BuildContext context, String value,child) {
-                      return  CircleAvatar(
-                        radius: MediaQuery.of(context).size.height * 0.07,
-                        backgroundColor: Colors.white,
-                        child: CircleAvatar(
-                          radius: MediaQuery.of(context).size.height * 0.07,
-                          backgroundImage: value.isEmpty ? Image.network(store?.state.user['photo_url']).image : Image.file(File(value)).image,
-                          child: Align(
-                            alignment: Alignment.bottomRight,
-                            child: CircleAvatar(
-                              backgroundColor: Colors.white,
-                              radius: MediaQuery.of(context).size.height * 0.018,
-                              child: _imageLoader ?
-                                const CircularProgressIndicator(
-                                  color: Colors.blueAccent,
-                                ) : 
-                                Icon(
-                                  Icons.camera_alt,
-                                  size: MediaQuery.of(context).size.height * 0.016,
-                                  color: Colors.grey.shade600,
-                                )
-                            ),
-                          )
-                        )
-                      );                      
+      
+                      if( storageStatus.isGranted ){
+      
+                        final ImagePicker picker = ImagePicker();
+                        final XFile? image       = await picker.pickImage(source: ImageSource.gallery);
+      
+                        if( image != null){
+                          uploadImage(context,image.path);
+                        }
+                
+                      }
                     },
+                    child: ValueListenableBuilder<String> (
+                      valueListenable: profileImage,
+                      builder: (BuildContext context, String value,child) {
+                        return  CircleAvatar(
+                          radius: MediaQuery.of(context).size.height * 0.07,
+                          backgroundColor: Colors.white,
+                          child: CircleAvatar(
+                            radius: MediaQuery.of(context).size.height * 0.07,
+                            backgroundImage: value.isEmpty ? Image.network(store?.state.user['photo_url']).image : Image.file(File(value)).image,
+                            child: Align(
+                              alignment: Alignment.bottomRight,
+                              child: CircleAvatar(
+                                backgroundColor: Colors.white,
+                                radius: MediaQuery.of(context).size.height * 0.018,
+                                child: _imageLoader ?
+                                  const CircularProgressIndicator(
+                                    color: Colors.blueAccent,
+                                  ) : 
+                                  Icon(
+                                    Icons.camera_alt,
+                                    size: MediaQuery.of(context).size.height * 0.016,
+                                    color: Colors.grey.shade600,
+                                  )
+                              ),
+                            )
+                          )
+                        );                      
+                      },
+                    ),
                   ),
-                ),
-              )
-            ),
-          ]
-        );
-      },
-      converter:(store) => store.state,
+                )
+              ),
+            ]
+          );
+        },
+        converter:(store) => store.state,
+      ),
     );
   }
 

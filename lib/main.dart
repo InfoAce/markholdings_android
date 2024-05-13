@@ -22,7 +22,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   DataCacheManager cacheManager = DefaultDataCacheManager.instance;
-  Map<String,dynamic> auth      = jsonDecode((await cacheManager?.get('auth'))!.value.toString()) ?? {};
+  CachedData? authStore         = await cacheManager.get('auth');
+  Map<String,dynamic> auth      = authStore != null ? jsonDecode(authStore.value.toString()) : {};
 
   store = Store<AppState>(appReducer,initialState: AppState.initialState());
 

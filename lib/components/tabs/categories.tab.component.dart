@@ -24,17 +24,17 @@ class _CategoriesTabState extends State<CategoriesTab> {
       child: StickyHeader(
         header: Container(
           width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
+          decoration:const BoxDecoration(
             color: Colors.blueAccent
           ),
           child: Padding(
-            padding: EdgeInsets.all(15.0),
+            padding: const EdgeInsets.all(10.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children:[
-                      Padding(
+                    Padding(
                       padding: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.01),
                       child: const Icon(
                         Icons.list,
@@ -45,7 +45,6 @@ class _CategoriesTabState extends State<CategoriesTab> {
                       'Categories',
                       style: GoogleFonts.poppins(
                         color: Colors.white,
-                        fontSize: MediaQuery.of(context).size.width * 0.05
                       )
                     ),                       
                   ]

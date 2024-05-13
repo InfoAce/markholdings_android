@@ -5,6 +5,8 @@ import 'package:android_app/components/views/profile.view.component.dart';
 import 'package:android_app/components/views/signup.view.component.dart';
 // import 'package:android_app/models/user.model.dart';
 import 'package:android_app/store/app.store.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:sticky_headers/sticky_headers/widget.dart';
 
 class AccountTab extends StatefulWidget {
   const AccountTab({super.key});
@@ -23,11 +25,18 @@ class _AccountTabState extends State<AccountTab> with SingleTickerProviderStateM
     });
   }
 
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height,
-      child: StoreConnector<AppState,AppState>(
+      color: Colors.blueAccent,
+      child: SingleChildScrollView(
+        child: StoreConnector<AppState,AppState>(
           builder: (context,AppState state){
             
             if( state.auth.isEmpty){
@@ -42,11 +51,11 @@ class _AccountTabState extends State<AccountTab> with SingleTickerProviderStateM
                 )
               );
             } 
-
-            if( state.auth.isNotEmpty && state.auth.containsKey('token') ){
-              return ProfileView(); 
+        
+            if( state.auth.isNotEmpty ){
+              return  ProfileView(); 
             }
-
+        
             return Container(
               child: const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -61,8 +70,10 @@ class _AccountTabState extends State<AccountTab> with SingleTickerProviderStateM
               ),
             );
           }, 
+      
           converter: (store) =>  store.state
         ),
+      ),
     );
   }
 }

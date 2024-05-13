@@ -20,7 +20,7 @@ class CartTab extends StatefulWidget {
 
 class _CartTabState extends State<CartTab> {
 
-  ValueNotifier<List> shoppingCart     = ValueNotifier<List>([]);
+  ValueNotifier<List> shoppingCart = ValueNotifier<List>([]);
 
   @override
   void initState(){
@@ -34,83 +34,80 @@ class _CartTabState extends State<CartTab> {
       body: SingleChildScrollView(
         child: StickyHeader(
           header: Container(
+            padding: EdgeInsets.only(right: 10.0, left: 10.0),
             width: MediaQuery.of(context).size.width,
             decoration: const BoxDecoration(
               color: Colors.blueAccent
             ),
-            child: Padding(
-              padding: EdgeInsets.all(15.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children:[
-                       Padding(
-                        padding: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.01),
-                        child: const Icon(
-                          Icons.shopping_cart,
-                          color: Colors.white,
-                        ),                       
-                      ),
-                      Text(
-                        'Shopping cart',
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children:[
+                      Padding(
+                      padding: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.01),
+                      child: const Icon(
+                        Icons.shopping_cart,
+                        color: Colors.white,
+                      ),                       
+                    ),
+                    Text(
+                      'Shopping cart',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                      )
+                    ),                       
+                  ]
+                ),              
+                TextButton(
+                  onPressed: (){
+                    if( shoppingCart.value.isNotEmpty) {
+                      popup(context);
+                    }
+
+                    if( shoppingCart.value.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        backgroundColor: Colors.blueAccent,
+                        content: Row(
+                          children: [
+                            Icon(
+                              color: Colors.white,
+                              Icons.info
+                            ),
+                            Flexible(
+                              child: Text('Your shopping cart is empty.',
+                              style: TextStyle(color: Colors.white) 
+                              )
+                            )
+                          ],
+                        ),
+                      ));    
+                    }                      
+                    
+                  }, 
+                  style:  ButtonStyle(
+                    shape: MaterialStateProperty.all(
+                        const RoundedRectangleBorder(
+                            side: BorderSide(
+                              color: Colors.white, // your color here
+                              width: 1,
+                            ),
+                        ),
+                    )
+                  ),             
+                  isSemanticButton: true,
+                  child: Container(
+                    child: Text(
+                        "Buy now",
                         style: GoogleFonts.poppins(
                           color: Colors.white,
-                          fontSize: MediaQuery.of(context).size.width * 0.05
+                          fontSize: MediaQuery.of(context).size.width * 0.03
                         )
-                      ),                       
-                    ]
-                  ),              
-                  TextButton(
-                    onPressed: (){
-                      if( shoppingCart.value.isNotEmpty) {
-                        popup(context);
-                      }
-
-                      if( shoppingCart.value.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          backgroundColor: Colors.blueAccent,
-                          content: Row(
-                            children: [
-                              Icon(
-                                color: Colors.white,
-                                Icons.info
-                              ),
-                              Flexible(
-                                child: Text('Your shopping cart is empty.',
-                                style: TextStyle(color: Colors.white) 
-                                )
-                              )
-                            ],
-                          ),
-                        ));    
-                      }                      
-                      
-                    }, 
-                    style:  ButtonStyle(
-                      shape: MaterialStateProperty.all(
-                          const RoundedRectangleBorder(
-                              side: BorderSide(
-                                color: Colors.white, // your color here
-                                width: 1,
-                              ),
-                          ),
-                      )
-                    ),             
-                    isSemanticButton: true,
-                    child: Container(
-                      child: Text(
-                          "Buy now",
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: MediaQuery.of(context).size.width * 0.03
-                          )
-                      ),
-                    )
-                  )                       
-                ]
-              ),
-            )  ,
+                    ),
+                  )
+                )                       
+              ]
+            ),
           ),
           content: Container(
             height: MediaQuery.of(context).size.height * 0.9,
