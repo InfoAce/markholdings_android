@@ -3,7 +3,6 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:android_app/components/views/login.view.component.dart';
 import 'package:android_app/components/views/profile.view.component.dart';
 import 'package:android_app/components/views/signup.view.component.dart';
-// import 'package:android_app/models/user.model.dart';
 import 'package:android_app/store/app.store.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sticky_headers/sticky_headers/widget.dart';
@@ -34,45 +33,27 @@ class _AccountTabState extends State<AccountTab> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.blueAccent,
-      child: SingleChildScrollView(
-        child: StoreConnector<AppState,AppState>(
-          builder: (context,AppState state){
-            
-            if( state.auth.isEmpty){
-              return DefaultTabController(
-                length: 2, 
-                child: TabBarView(
-                  controller: _tabController,
-                  children: <Widget>[
-                    LoginView(callback: changeTab, deviceInfo: state.device),
-                    SignUpView(callback: changeTab)
-                  ]
-                )
-              );
-            } 
-        
-            if( state.auth.isNotEmpty ){
-              return  ProfileView(); 
-            }
-        
-            return Container(
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: CircularProgressIndicator(
-                      color: Colors.blueAccent,
-                    ),
-                  )
-                ]
-              ),
-            );
-          }, 
+      child: StoreConnector<AppState,AppState>(
+        builder: (context,AppState state){
       
-          converter: (store) =>  store.state
-        ),
+          if( state.auth.isEmpty){
+            return DefaultTabController(
+              length: 2, 
+              child: TabBarView(
+                controller: _tabController,
+                children: <Widget>[
+                  LoginView(callback: changeTab),
+                  SignUpView(callback: changeTab)
+                ]
+              )
+            );
+          } 
+          
+          return  ProfileView(); 
+      
+        }, 
+        
+        converter: (store) =>  store.state
       ),
     );
   }

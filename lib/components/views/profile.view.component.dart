@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:android_app/components/builders/base/edit.profile.builder.dart';
 import 'package:android_app/services/api.service.dart';
 import 'package:data_cache_manager/data_cache_manager.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -48,55 +49,9 @@ class _ProfileViewState extends State<ProfileView> {
 
   @override
   Widget build(BuildContext context) {
-    return StickyHeader(
-      header: Container(
-        decoration: const BoxDecoration(
-          color: Colors.blueAccent,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children:[ 
-                IconButton(
-                  icon: const Icon(
-                    Icons.edit,
-                    color: Colors.white,
-                  ),
-                  color: Colors.white,
-                  onPressed: () {                    
-                    showModalBottomSheet<void>(
-                      isScrollControlled: true,
-                      context: context,
-                      builder: (BuildContext context) {
-                        return EditProfile(profile: store?.state.user,showDialogContext: context);
-                      }
-                    );                     
-                  },
-                ),
-                Text(
-                  'Account Information',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                  )
-                ),     
-              ]
-            ),              
-            IconButton(
-              icon: const Icon(
-                Icons.logout,
-                color: Colors.white,
-              ),
-              color: Colors.white,
-              onPressed: () async{
-                _logout(context);
-              },
-            ),
-          ],
-        ) 
-      ),
-      content: StoreConnector<AppState,AppState>(
+    return Container(
+      color: Colors.blueAccent,
+      child: StoreConnector<AppState,AppState>(
         builder: (context,AppState state) {
       
           final firstName         = state.user['first_name'];
@@ -111,7 +66,52 @@ class _ProfileViewState extends State<ProfileView> {
           final String joinedOn   = DateFormat('dd MMMM yyyy').format(dateTime);
       
           return Stack(
-            children: [             
+            children: [    
+              Container(
+                color: Colors.blueAccent,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children:[ 
+                        IconButton(
+                          icon: const Icon(
+                            Icons.edit,
+                            color: Colors.white,
+                          ),
+                          color: Colors.white,
+                          onPressed: () {                    
+                            showModalBottomSheet<void>(
+                              isScrollControlled: true,
+                              context: context,
+                              builder: (BuildContext context) {
+                                return EditProfile(profile: store?.state.user,showDialogContext: context);
+                              }
+                            );                     
+                          },
+                        ),
+                        Text(
+                          'Account Information',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                          )
+                        ),     
+                      ]
+                    ),              
+                    IconButton(
+                      icon: const Icon(
+                        Icons.logout,
+                        color: Colors.white,
+                      ),
+                      color: Colors.white,
+                      onPressed: () async{
+                        _logout(context);
+                      },
+                    ),
+                  ],
+                ),
+              ),                     
               Container(
                 margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.2),
                 width:  MediaQuery.of(context).size.width,
@@ -291,6 +291,7 @@ class _ProfileViewState extends State<ProfileView> {
                         return  CircleAvatar(
                           radius: MediaQuery.of(context).size.height * 0.07,
                           backgroundColor: Colors.white,
+                          
                           child: CircleAvatar(
                             radius: MediaQuery.of(context).size.height * 0.07,
                             backgroundImage: value.isEmpty ? Image.network(store?.state.user['photo_url']).image : Image.file(File(value)).image,

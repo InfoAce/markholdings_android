@@ -1,6 +1,7 @@
 
 import 'dart:convert';
 
+import 'package:android_app/screens/splash.screen.dart';
 import 'package:android_app/screens/verification.screen.dart';
 import 'package:android_app/store/actions/user.action.store.dart';
 import 'package:flutter_redux/flutter_redux.dart';
@@ -81,8 +82,8 @@ class MarkholdingsApp extends StatelessWidget{
         initialRoute: 'home',
         routes: {
           'home':         (context) => const Home(),
-          'verification': (context) => VerificationScreen()
-          // '/':     (context) => const SplashScreen(),
+          'verification': (context) => const VerificationScreen(),
+          // 'splash':       (context) => const SplashScreen(),
         },
         theme: ThemeData(fontFamily: 'Rubik')
       )
