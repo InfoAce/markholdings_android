@@ -1,4 +1,4 @@
-package com.example.markholdings_9
+package com.markholdings.app
 
 import io.flutter.embedding.android.FlutterActivity
 
