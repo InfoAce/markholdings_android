@@ -1,5 +1,5 @@
-name: markholdings_9
-description: "A new Flutter project."
+name: markholdings
+description: "Product listing and account management application."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -60,6 +60,7 @@ dependencies:
   flutter_spinkit: ^5.2.1
   fluttertoast: ^8.2.10
   flutter_launcher_icons: ^0.14.2
+  change_app_package_name: ^1.5.0
 
 dev_dependencies:
   flutter_test:
@@ -75,7 +76,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/icons/app.png"
+  image_path: "lib/assets/icons/app.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
