@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:markholdings_9/components/views/login.view.component.dart';
-import 'package:markholdings_9/components/views/profile.view.component.dart';
-import 'package:markholdings_9/components/views/signup.view.component.dart';
-import 'package:markholdings_9/store/app.store.dart';
+import 'package:markholdings/components/views/login.view.component.dart';
+import 'package:markholdings/components/views/profile.view.component.dart';
+import 'package:markholdings/components/views/signup.view.component.dart';
+import 'package:markholdings/store/app.store.dart';
 
 class AccountTab extends StatefulWidget {
   const AccountTab({super.key});

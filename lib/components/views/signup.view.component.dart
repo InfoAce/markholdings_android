@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:markholdings_9/models/signup.model.dart';
-import 'package:markholdings_9/services/api.service.dart';
-import 'package:markholdings_9/store/actions/auth.action.store.dart';
+import 'package:markholdings/models/signup.model.dart';
+import 'package:markholdings/services/api.service.dart';
+import 'package:markholdings/store/actions/auth.action.store.dart';
 import 'package:data_cache_manager/data_cache_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:markholdings_9/store/actions/category.action.store.dart';
-import 'package:markholdings_9/store/actions/tab.action.store.dart';
+import 'package:markholdings/store/actions/category.action.store.dart';
+import 'package:markholdings/store/actions/tab.action.store.dart';
 import 'package:redux/redux.dart';
 import 'package:provider/provider.dart';
 

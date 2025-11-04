@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:markholdings_9/components/views/product.view.component.dart';
-import 'package:markholdings_9/components/views/products.view.component.dart';
-import 'package:markholdings_9/store/app.store.dart';
+import 'package:markholdings/components/views/product.view.component.dart';
+import 'package:markholdings/components/views/products.view.component.dart';
+import 'package:markholdings/store/app.store.dart';
 
 class ShopTab extends StatefulWidget {
   const ShopTab({super.key});

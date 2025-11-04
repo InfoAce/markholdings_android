@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:markholdings_9/components/builders/products.builder.dart';
-import 'package:markholdings_9/components/global/searchbar.component.dart';
-import 'package:markholdings_9/services/api.service.dart';
-import 'package:markholdings_9/validations/products.validation.dart';
+import 'package:markholdings/components/builders/products.builder.dart';
+import 'package:markholdings/components/global/searchbar.component.dart';
+import 'package:markholdings/services/api.service.dart';
+import 'package:markholdings/validations/products.validation.dart';
 import 'package:provider/provider.dart';
 import 'package:sticky_headers/sticky_headers/widget.dart';
 import 'package:redux/redux.dart';

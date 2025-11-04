@@ -6,7 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:markholdings_9/services/api.service.dart';
+import 'package:markholdings/services/api.service.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:redux/redux.dart';

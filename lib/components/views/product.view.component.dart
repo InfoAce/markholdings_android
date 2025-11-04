@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:data_cache_manager/data_cache_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:markholdings_9/store/actions/product.action.store.dart';
+import 'package:markholdings/store/actions/product.action.store.dart';
 import 'package:provider/provider.dart';
 import 'package:redux/redux.dart';
 import 'package:flutter_html/flutter_html.dart';

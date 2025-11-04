@@ -1,11 +1,11 @@
-import 'package:markholdings_9/store/actions/auth.action.store.dart';
-import 'package:markholdings_9/store/actions/category.action.store.dart';
-import 'package:markholdings_9/store/actions/device.action.store.dart';
-import 'package:markholdings_9/store/actions/env.action.store.dart';
-import 'package:markholdings_9/store/actions/product.action.store.dart';
-import 'package:markholdings_9/store/actions/tab.action.store.dart';
-import 'package:markholdings_9/store/actions/user.action.store.dart';
-import 'package:markholdings_9/store/actions/cart.action.store.dart';
+import 'package:markholdings/store/actions/auth.action.store.dart';
+import 'package:markholdings/store/actions/category.action.store.dart';
+import 'package:markholdings/store/actions/device.action.store.dart';
+import 'package:markholdings/store/actions/env.action.store.dart';
+import 'package:markholdings/store/actions/product.action.store.dart';
+import 'package:markholdings/store/actions/tab.action.store.dart';
+import 'package:markholdings/store/actions/user.action.store.dart';
+import 'package:markholdings/store/actions/cart.action.store.dart';
 
 class AppState {
 

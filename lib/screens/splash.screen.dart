@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:markholdings_9/main.dart';
-import 'package:markholdings_9/screens/home.screen.dart';
-import 'package:markholdings_9/services/api.service.dart';
-import 'package:markholdings_9/store/actions/auth.action.store.dart';
-import 'package:markholdings_9/validations/company.validation.dart';
-import 'package:markholdings_9/validations/profile.validation.dart';
+import 'package:markholdings/main.dart';
+import 'package:markholdings/screens/home.screen.dart';
+import 'package:markholdings/services/api.service.dart';
+import 'package:markholdings/store/actions/auth.action.store.dart';
+import 'package:markholdings/validations/company.validation.dart';
+import 'package:markholdings/validations/profile.validation.dart';
 import 'package:provider/provider.dart';
 import 'package:redux/redux.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
@@ -115,7 +115,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                       fontFamily: 'Rubik',
                       color: Colors.blueAccent
                   ),
-                  child: Text("markholdings_9"),
+                  child: Text("markholdings"),
                 ),                  
               ],
             )

@@ -1,19 +1,19 @@
 
 import 'dart:convert';
 
-// import 'package:markholdings_9/screens/splash.screen.dart';
-import 'package:markholdings_9/screens/verification.screen.dart';
-import 'package:markholdings_9/store/actions/user.action.store.dart';
+// import 'package:markholdings/screens/splash.screen.dart';
+import 'package:markholdings/screens/verification.screen.dart';
+import 'package:markholdings/store/actions/user.action.store.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:markholdings_9/store/actions/env.action.store.dart';
-import 'package:markholdings_9/store/actions/tab.action.store.dart';
-import 'package:markholdings_9/store/app.store.dart';
-import 'package:markholdings_9/store/actions/auth.action.store.dart';
+import 'package:markholdings/store/actions/env.action.store.dart';
+import 'package:markholdings/store/actions/tab.action.store.dart';
+import 'package:markholdings/store/app.store.dart';
+import 'package:markholdings/store/actions/auth.action.store.dart';
 import 'package:redux/redux.dart';
-import 'package:markholdings_9/services/api.service.dart';
+import 'package:markholdings/services/api.service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:markholdings_9/screens/home.screen.dart';
+import 'package:markholdings/screens/home.screen.dart';
 import 'package:provider/provider.dart';
 import 'package:data_cache_manager/data_cache_manager.dart';
 

@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:markholdings_9/components/builders/base/category.base.builders.dart';
-import 'package:markholdings_9/services/api.service.dart';
-import 'package:markholdings_9/validations/categories.validation.dart';
+import 'package:markholdings/components/builders/base/category.base.builders.dart';
+import 'package:markholdings/services/api.service.dart';
+import 'package:markholdings/validations/categories.validation.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 

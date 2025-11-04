@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:markholdings_9/services/api.service.dart';
-import 'package:markholdings_9/store/actions/tab.action.store.dart';
+import 'package:markholdings/services/api.service.dart';
+import 'package:markholdings/store/actions/tab.action.store.dart';
 import 'package:data_cache_manager/data_cache_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_verification_code/flutter_verification_code.dart';

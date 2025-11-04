@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:markholdings_9/components/builders/categories.builder.dart';
-import 'package:markholdings_9/store/actions/category.action.store.dart';
-import 'package:markholdings_9/components/global/searchbar.component.dart';
+import 'package:markholdings/components/builders/categories.builder.dart';
+import 'package:markholdings/store/actions/category.action.store.dart';
+import 'package:markholdings/components/global/searchbar.component.dart';
 import 'package:sticky_headers/sticky_headers/widget.dart';
 import 'package:redux/redux.dart';
 import 'package:provider/provider.dart';
-import 'package:markholdings_9/store/actions/product.action.store.dart';
+import 'package:markholdings/store/actions/product.action.store.dart';
 
 class CategoriesTab extends StatefulWidget {
   
