@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 
 class ApiService extends http.BaseClient {
   
@@ -28,7 +26,7 @@ class ApiService extends http.BaseClient {
 
   @override
   Future<http.Response> post(url, {Map<String, String>? headers, dynamic body, Encoding ? encoding}) {
-    return _httpClient.post(Uri.parse(baseUrl + url.toString()), headers: _mergedHeaders(headers), body: jsonEncode(body), encoding: encoding);
+    return _httpClient.post(Uri.parse(baseUrl + url.toString()), headers: _mergedHeaders(headers), body: body, encoding: encoding);
   }
 
   @override

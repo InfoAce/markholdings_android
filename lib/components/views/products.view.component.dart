@@ -1,15 +1,17 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:markholdings_ecommerce/components/builders/products.builder.dart';
-import 'package:markholdings_ecommerce/components/global/searchbar.component.dart';
-import 'package:markholdings_ecommerce/services/api.service.dart';
-import 'package:markholdings_ecommerce/validations/products.validation.dart';
+import 'package:markholdings_9/components/builders/products.builder.dart';
+import 'package:markholdings_9/components/global/searchbar.component.dart';
+import 'package:markholdings_9/services/api.service.dart';
+import 'package:markholdings_9/validations/products.validation.dart';
 import 'package:provider/provider.dart';
 import 'package:sticky_headers/sticky_headers/widget.dart';
+import 'package:redux/redux.dart';
+import 'package:provider/provider.dart';
 
 class ProductsView extends StatefulWidget {
-  const ProductsView({Key? key}) : super(key: key);
+  const ProductsView({super.key});
 
   @override
   State<ProductsView> createState() => _ProductsViewState();
@@ -34,11 +36,12 @@ class _ProductsViewState extends State<ProductsView> with SingleTickerProviderSt
 
     if (isLoading && products['last_page'] != currentPage) {
       fetchProducts(page: products['current_page'] + 1,search: filter.isNotEmpty ? filter : "" ).then( (value) {
-        setState( () { 
-          products = value.products; 
-          productList = [...productList, ...value.products['data']]; 
-          isLoading = false;
-          currentPage = products['current_page'];
+        setState( 
+          () { 
+            products = value.products; 
+            productList = [...productList, ...value.products['data']]; 
+            isLoading = false;
+            currentPage = products['current_page'];
           }
         ) ;
       });
@@ -54,7 +57,10 @@ class _ProductsViewState extends State<ProductsView> with SingleTickerProviderSt
     fetchProducts(page: 1,search: name ).then( (value) {
       setState( () { 
         products    = value.products; 
-        productList = value.products['data']; 
+        productList = ( value.products['data'] as List ).map( (value) {
+          value['cart'] = false;
+          return value;
+        }).toList();
         isLoading   = false;
         currentPage = products['current_page'];
         }
@@ -67,7 +73,10 @@ class _ProductsViewState extends State<ProductsView> with SingleTickerProviderSt
     fetchProducts(page: currentPage).then(
       (value) => setState( (){ 
         products    = value.products; 
-        productList = value.products['data'];
+        productList = ( value.products['data'] as List ).map( (value) {
+          value['cart'] = false;
+          return value;
+        }).toList();
         isLoading   = false;
       }
     ));
@@ -98,7 +107,7 @@ class _ProductsViewState extends State<ProductsView> with SingleTickerProviderSt
                 ), 
               ),  
               productList.isEmpty ?
-                  Container(
+                  SizedBox(
                     height: MediaQuery.of(context).size.height * 0.75,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -123,7 +132,7 @@ class _ProductsViewState extends State<ProductsView> with SingleTickerProviderSt
                   ) 
                 : ProductsBuilder( products: productList, callback: fetchMore ),
                 isLoading && productList.isNotEmpty ?
-                  Container(
+                  SizedBox(
                     height: MediaQuery.of(context).size.height * 0.1,
                     child: const Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -137,7 +146,7 @@ class _ProductsViewState extends State<ProductsView> with SingleTickerProviderSt
                       ]
                     ),
                   ) 
-                : Container(padding: EdgeInsets.only(top: 5.0),)      
+                : Container(padding: const EdgeInsets.only(top: 5.0),)      
             ],
           )
         )
@@ -146,17 +155,23 @@ class _ProductsViewState extends State<ProductsView> with SingleTickerProviderSt
   }
   Future<ProductsValidation> fetchProducts({page = 1,search = ""}) async { 
     
-    String uri = 'shop?page=$page';
+    String uri  = 'shop?page=$page';
+    final store = Provider.of<Store>(context,listen: false);   
 
     if( search.isNotEmpty) {
       uri = '$uri&search=$search';
     }
+    
+    if(store.state.category["id"].isNotEmpty){
+      uri = '$uri&category_id=${store.state.category["id"]}';
+    }
+
 
     final response = await Provider.of<ApiService>(context,listen: false).get(Uri.parse(uri.toString()));
 
     if( response.statusCode == 200 ){
       // If the server did not return a 200 OK response,
-      // then throw an exception.     
+      // then throw an exception.    
       return ProductsValidation.fromJson(jsonDecode(response.body));
     }  else {
       // If the server did not return a 200 OK response,

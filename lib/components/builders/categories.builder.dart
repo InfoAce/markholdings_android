@@ -1,10 +1,12 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:markholdings_ecommerce/components/builders/base/category.base.builders.dart';
-import 'package:markholdings_ecommerce/services/api.service.dart';
-import 'package:markholdings_ecommerce/validations/categories.validation.dart';
+import 'package:markholdings_9/components/builders/base/category.base.builders.dart';
+import 'package:markholdings_9/services/api.service.dart';
+import 'package:markholdings_9/validations/categories.validation.dart';
 import 'package:provider/provider.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class CategoriesBuilders extends StatefulWidget {
   const CategoriesBuilders({super.key});
@@ -64,24 +66,55 @@ class _CategoriesBuildersState extends State<CategoriesBuilders> {
       height:  MediaQuery.of(context).size.height * 0.82,
       width:   MediaQuery.of(context).size.width,
       padding: const EdgeInsets.only(left: 5.0, right: 5.0, bottom: 10.0),
-      child: ListView(
-        controller: _scrollController,
-        children: categoryList.map( (category) {
-          return CategoryBase(category: category);
-        }).toList()
-      )
+      child: !isLoading ? ListView(
+          controller: _scrollController,
+          children: categoryList.map( (category) {
+            return CategoryBase(category: category);
+          }).toList() 
+        ) : SizedBox(
+          height: MediaQuery.of(context).size.height * 0.1,
+          child: const Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: CircularProgressIndicator(
+                  color: Colors.blueAccent,
+                ),
+              )
+            ]
+          ),
+        )
     );
+  }
+
+  void _errorReport(){
+    Fluttertoast.showToast(
+      msg: "Something went wrong when fetching categories. Attempting to fetch again...",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.CENTER,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0
+    );
+    Timer(const Duration(seconds: 2), () => fetchCategories(1) );
   }
 
   Future<CategoriesValidation> fetchCategories(page) async { 
     
-    final response = await Provider.of<ApiService>(context,listen: false).get(Uri.parse('categories?page=$page'.toString()));
+    String url     = 'categories?page=$page'.toString();
+    final response = await Provider.of<ApiService>(context,listen: false).get(Uri.parse(url));
 
     if( response.statusCode == 200 ){
+      setState(() {
+        isLoading = false;
+      });
       // If the server did not return a 200 OK response,
       // then throw an exception.      
       return CategoriesValidation.fromJson(jsonDecode(response.body));
     }  else {
+      _errorReport();
       // If the server did not return a 200 OK response,
       // then throw an exception.      
       throw Exception("Something went wrong.");

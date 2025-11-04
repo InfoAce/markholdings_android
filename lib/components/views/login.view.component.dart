@@ -3,20 +3,19 @@ import 'dart:convert';
 import 'package:data_cache_manager/data_cache_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:markholdings_ecommerce/models/login.model.dart';
-import 'package:markholdings_ecommerce/services/api.service.dart';
-import 'package:markholdings_ecommerce/store/actions/auth.action.store.dart';
-import 'package:markholdings_ecommerce/store/actions/user.action.store.dart';
-import 'package:markholdings_ecommerce/validations/login.validation.dart';
+import 'package:markholdings_9/models/login.model.dart';
+import 'package:markholdings_9/services/api.service.dart';
+import 'package:markholdings_9/store/actions/auth.action.store.dart';
+import 'package:markholdings_9/store/actions/user.action.store.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:redux/redux.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class LoginView extends StatefulWidget {
   late Function callback;
-  late Map<String, dynamic> deviceInfo;
 
-  LoginView({super.key,required this.callback, required this.deviceInfo});
+  LoginView({super.key,required this.callback});
 
   @override
   State<LoginView> createState() => _LoginViewState();
@@ -27,9 +26,12 @@ class _LoginViewState extends State<LoginView> {
   final FocusNode _focusNodePassword              = FocusNode();
   final TextEditingController _controllerEmail    = TextEditingController();
   final TextEditingController _controllerPassword = TextEditingController();
+  final _formKey                                  = GlobalKey<FormState>();
   bool _obscurePassword                           = true;
   bool _loading                                   = false;
   final baseUrl                                   = dotenv.env['BASE_URL'];
+  Store ? store;
+  DataCacheManager ? cacheManager;
 
   late Uri authorizeUrl;
  
@@ -38,6 +40,8 @@ class _LoginViewState extends State<LoginView> {
   @override
   void initState(){
     super.initState();
+    store        = Provider.of<Store>(context,listen: false);
+    cacheManager = Provider.of<DataCacheManager>(context,listen: false);
   }
 
   @override
@@ -50,211 +54,224 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Container(
-        height: MediaQuery.of(context).size.height - ( MediaQuery.of(context).size.height * 0.15),
-        padding: EdgeInsets.all(15.0),
-        child: loginWidget(),
+    return  Form(
+      key: _formKey,
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [ 
+            Text(
+              'Welcome Back',
+              style: GoogleFonts.poppins(
+                color: Colors.blueAccent,
+                fontSize: 30
+              )
+            ),   
+            Text(
+              'Enter valid credentials.',
+              style: GoogleFonts.poppins(
+                color: Colors.blueAccent,
+                fontSize: 15
+              )
+            ),                      
+            Padding(
+              padding: const EdgeInsets.only(top:10),
+              child: TextFormField(
+                controller: _controllerEmail,
+                // keyboardType: TextInputType.name,
+                decoration: InputDecoration(
+                  labelText: "Email",
+                  prefixIcon: const Icon(Icons.person_outline),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onEditingComplete: () => _focusNodePassword.requestFocus(),
+                validator: (String? value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please enter an email address.";
+                  } 
+                  return null;
+                },                  
+                onChanged: (text) {
+                    setState(() {
+                      form.email = text;
+                    });
+                },            
+              ),
+            ),   
+            Padding(
+              padding: const EdgeInsets.only(top:10),
+              child: TextFormField(
+                controller:  _controllerPassword,
+                focusNode:   _focusNodePassword,
+                obscureText: _obscurePassword,
+                keyboardType: TextInputType.visiblePassword,
+                decoration: InputDecoration(
+                  labelText: "Password",
+                  prefixIcon: const Icon(Icons.password_outlined),
+                  suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                      icon: _obscurePassword
+                          ? const Icon(Icons.visibility_outlined)
+                          : const Icon(Icons.visibility_off_outlined)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                validator: (String? value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please enter password.";
+                  } 
+                  return null;
+                },                  
+                onChanged: (text) {
+                  setState(() {
+                    form.password = text;
+                  });
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 30),
+              child: Column(
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      minimumSize: const Size.fromHeight(50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    onPressed: () {
+
+                      if (_formKey.currentState?.validate() ?? true && _loading == false) {
+                        
+                        setState(() { 
+                          form.client_id     = store?.state.env['OAUTH_ID'];
+                          form.client_secret = store?.state.env['OAUTH_SECRET'];
+                          _loading = true; 
+                        });
+
+                        login();
+                        
+                      }                          
+                    },
+                    child: _loading ? 
+                      const CircularProgressIndicator(
+                        color: Colors.white,
+                      ) 
+                      : const Text("Login", style: TextStyle(color: Colors.white)),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("Don't have an account?"),
+                      TextButton(
+                        onPressed: () {
+                          widget.callback(1);
+                        },
+                        child: const Text("Signup",style: TextStyle(color:Colors.blueAccent)),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),                                                           
+          ]
+        ),
       ),
     );
   }
 
-  Widget loginWidget(){
-    return  Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            "Welcome back",
-            style: Theme.of(context).textTheme.headlineLarge,
-          ),  
-          Text(
-            "Login to your account",
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),   
-          Padding(
-            padding: EdgeInsets.only(top:10),
-            child: TextFormField(
-              controller: _controllerEmail,
-              // keyboardType: TextInputType.name,
-              decoration: InputDecoration(
-                labelText: "Email",
-                prefixIcon: const Icon(Icons.person_outline),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              onEditingComplete: () => _focusNodePassword.requestFocus(),
-              onChanged: (text) {
-                  setState(() {
-                    form.email = text;
-                  });
-              },            
+  showMessage(String message,Color color){
+
+    if(mounted){
+
+      ScaffoldMessenger.of(super.context).showSnackBar( SnackBar(
+        backgroundColor: color,
+        content: Row(
+          children: [
+            const Icon(
+              color: Colors.white,
+              Icons.info
             ),
-          ),   
-          Padding(
-            padding: EdgeInsets.only(top:10),
-            child: TextFormField(
-              controller:  _controllerPassword,
-              focusNode:   _focusNodePassword,
-              obscureText: _obscurePassword,
-              keyboardType: TextInputType.visiblePassword,
-              decoration: InputDecoration(
-                labelText: "Password",
-                prefixIcon: const Icon(Icons.password_outlined),
-                suffixIcon: IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                    icon: _obscurePassword
-                        ? const Icon(Icons.visibility_outlined)
-                        : const Icon(Icons.visibility_off_outlined)),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              onChanged: (text) {
-                setState(() {
-                  form.password = text;
-                });
-              },
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 30),
-            child: Column(
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: form.email.isEmpty || form.password.isEmpty || _loading ? Colors.grey[400] : Colors.blueAccent,
-                    minimumSize: const Size.fromHeight(50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  onPressed: () {
-                    if( form.email.isNotEmpty && form.password.isNotEmpty ){   
-                      if( !_loading ){                                                    
-                        login(context); 
-                      }                       
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        backgroundColor: Colors.amber,
-                        content: Row(
-                          children: [
-                            Icon(
-                              color: Colors.white,
-                              Icons.info
-                            ),
-                            Text('The email address and password fields are required.')
-                          ],
-                        ),
-                      ));
-                    }
-                  },
-                  child: _loading ? 
-                    const CircularProgressIndicator(
-                      color: Colors.white,
-                    ) 
-                    : const Text("Login"),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Don't have an account?"),
-                    TextButton(
-                      onPressed: () {
-                        widget.callback(1);
-                      },
-                      child: const Text("Signup",style: TextStyle(color:Colors.blueAccent)),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),                                                           
-        ]
-    );
+            Flexible(child: Text(message, style: const TextStyle(color: Colors.white),))
+          ],
+        ),
+      ));          
+    }
+
   }
-  
-  Future<dynamic> login(context) async { 
-    setState(() => _loading = true ); 
-    final store        = Provider.of<Store>(context,listen: false);
-    final cacheManager = Provider.of<DataCacheManager>(context,listen: false);
-    final response     = await Provider.of<ApiService>(context,listen: false)
-                                       .post(
-                                          Uri.parse('/auth/login'.toString()),
-                                          body: {
-                                            "email":      form.email,
-                                            "password":      form.password,
-                                            "client_id":     store.state.env['OAUTH_ID'],
-                                            "client_secret": store.state.env['OAUTH_SECRET'],
-                                          }
-                                        );
-    switch(response.statusCode){
-      case 200:
+
+  Future<dynamic> login() async {
+
+    try{ 
+        
+      setState(() => _loading = true ); 
+      
+      Response response        = await Provider.of<ApiService>(context,listen: false).post(Uri.parse('/auth/login'.toString()),body: jsonEncode(form.toMap()));                     
+      Map<String,dynamic> data = jsonDecode(response.body);
+
+      if( response.statusCode == 200 ){
+
+        store?.dispatch(UpdateAuth(data['auth']));  
+        store?.dispatch(UpdateUser(data['user']));   
+
+        await cacheManager?.add('auth',jsonEncode({ 'user': data['user'], 'token': data['auth'] }));  
+        
         setState(() => _loading = false ); 
-        LoginValidation data = LoginValidation.fromJson(jsonDecode(response.body));
-        store.dispatch(UpdateAuth(data.auth));  
-        store.dispatch(UpdateUser(data.user));         
-        await cacheManager.add('auth',jsonEncode({ 'user': data.user, 'token': data.auth }));  
-      break;
-      case 401:
+      }
+
+      if( response.statusCode == 422 ){
         setState(() => _loading = false ); 
-        Map<String,dynamic> data = jsonDecode(response.body);
-        ScaffoldMessenger.of(context).showSnackBar( SnackBar(
-          backgroundColor: Colors.amber,
-          content: Row(
-            children: [
-              const Icon(
-                color: Colors.white,
-                Icons.info
-              ),
-              Flexible(child: Text(data['message']))
-            ],
-          ),
-        ));      
-      break;
-      case 422:
+
+        showMessage(
+          data['message'],
+          Colors.amber
+        );
+        
+      }
+      
+      if( response.statusCode == 401 ){
         setState(() => _loading = false ); 
-        Map<String,dynamic> data = jsonDecode(response.body);
-        ScaffoldMessenger.of(context).showSnackBar( SnackBar(
-          backgroundColor: Colors.blueAccent,
-          content: Row(
-            children: [
-              const Icon(
-                color: Colors.white,
-                Icons.info
-              ),
-              Flexible(child: Text(data['message']))
-            ],
-          ),
-        ));      
-      break;      
-      case 404:
-      case 500:
+
+        showMessage(
+          data['message'],
+          Colors.amber
+        );
+        
+      }      
+
+      if( response.statusCode == 500 ){
         setState(() => _loading = false ); 
-        Map<String,dynamic> data = jsonDecode(response.body);
-        ScaffoldMessenger.of(context).showSnackBar( SnackBar(
-          backgroundColor: Colors.amber,
-          content: Row(
-            children: [
-              const Icon(
-                color: Colors.white,
-                Icons.info
-              ),
-              Flexible(child: Text(data['message']))
-            ],
-          ),
-        ));                              
-      break;
-    }                             
+
+        showMessage(
+          'Internal Server Error. Please contact the server administrator.',
+          Colors.red
+        );
+        
+      }      
+
+    } catch(error) {
+
+      showMessage(
+        'Internal Server Error. Please report this to the administrator.',
+        Colors.red
+      );
+    
+    }                         
   } 
 }

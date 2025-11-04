@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:markholdings_ecommerce/components/views/login.view.component.dart';
-import 'package:markholdings_ecommerce/components/views/profile.view.component.dart';
-import 'package:markholdings_ecommerce/components/views/signup.view.component.dart';
-// import 'package:markholdings_ecommerce/models/user.model.dart';
-import 'package:markholdings_ecommerce/store/app.store.dart';
+import 'package:markholdings_9/components/views/login.view.component.dart';
+import 'package:markholdings_9/components/views/profile.view.component.dart';
+import 'package:markholdings_9/components/views/signup.view.component.dart';
+import 'package:markholdings_9/store/app.store.dart';
 
 class AccountTab extends StatefulWidget {
   const AccountTab({super.key});
@@ -23,42 +22,38 @@ class _AccountTabState extends State<AccountTab> with SingleTickerProviderStateM
     });
   }
 
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: MediaQuery.of(context).size.height,
       child: StoreConnector<AppState,AppState>(
-          builder: (context,AppState state){
-            if( state.auth.isEmpty){
-              return DefaultTabController(
-                length: 2, 
-                child: TabBarView(
-                  controller: _tabController,
-                  children: <Widget>[
-                    LoginView(callback: changeTab, deviceInfo: state.device),
-                    SignUpView(callback: changeTab)
-                  ]
-                )
-              );
-            } else if( state.auth.isNotEmpty ){
-              return ProfileView(); 
-            }
-            return Container(
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: CircularProgressIndicator(
-                      color: Colors.blueAccent,
-                    ),
-                  )
+        builder: (context,AppState state){
+      
+          if( state.auth.isEmpty){
+            return DefaultTabController(
+              length: 2, 
+              child: TabBarView(
+                controller: _tabController,
+                children: <Widget>[
+                  LoginView(callback: changeTab),
+                  SignUpView(callback: changeTab)
                 ]
-              ),
+              )
             );
-          }, 
-          converter: (store) =>  store.state
-        ),
+          } 
+          
+          return  ProfileView(); 
+      
+        }, 
+        
+        converter: (store) =>  store.state
+      ),
     );
   }
 }

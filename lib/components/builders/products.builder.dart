@@ -1,7 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:markholdings_ecommerce/components/builders/base/product.base.builder.dart';
-import 'package:markholdings_ecommerce/validations/products.validation.dart';
+import 'package:markholdings_9/components/builders/base/product.base.builder.dart';
 
 class ProductsBuilder extends StatefulWidget {
   ProductsBuilder({
@@ -10,7 +8,7 @@ class ProductsBuilder extends StatefulWidget {
     required this.callback
   });
 
-  final List<dynamic> products;
+  List<dynamic> products;
   final Function callback;
 
   @override
@@ -59,4 +57,5 @@ class _ProductsBuilderState extends State<ProductsBuilder> {
     super.dispose();
   }
  
+
 }

@@ -1,9 +1,11 @@
-import 'package:markholdings_ecommerce/store/actions/auth.action.store.dart';
-import 'package:markholdings_ecommerce/store/actions/device.action.store.dart';
-import 'package:markholdings_ecommerce/store/actions/env.action.store.dart';
-import 'package:markholdings_ecommerce/store/actions/product.action.store.dart';
-import 'package:markholdings_ecommerce/store/actions/tab.action.store.dart';
-import 'package:markholdings_ecommerce/store/actions/user.action.store.dart';
+import 'package:markholdings_9/store/actions/auth.action.store.dart';
+import 'package:markholdings_9/store/actions/category.action.store.dart';
+import 'package:markholdings_9/store/actions/device.action.store.dart';
+import 'package:markholdings_9/store/actions/env.action.store.dart';
+import 'package:markholdings_9/store/actions/product.action.store.dart';
+import 'package:markholdings_9/store/actions/tab.action.store.dart';
+import 'package:markholdings_9/store/actions/user.action.store.dart';
+import 'package:markholdings_9/store/actions/cart.action.store.dart';
 
 class AppState {
 
@@ -19,14 +21,20 @@ class AppState {
   // Get current tab index
   late final int _tab;
 
+  // Get current tab index
+  late final int _cartItems;  
+
   // Get user info
   late final Map<String,dynamic> _user;
 
-    // Get product info
+  // Get product info
   late final Map<String,dynamic> _product;
 
+  // Get current tab index
+  late final Map<String,dynamic> _category;
+
   // Initializa state
-  AppState(this._auth,this._device,this._env,this._tab,this._user,this._product);
+  AppState(this._auth,this._device,this._env,this._tab,this._user,this._product,this._category,this._cartItems);
 
   Map<String,dynamic> get auth => _auth;
 
@@ -34,24 +42,25 @@ class AppState {
 
   Map<String,dynamic> get env => _env;
 
-  int get tab => _tab;
+  int get tab        => _tab;
+
+  int get cartItems => _cartItems;
+
+  Map<String,dynamic> get category => _category;
 
   Map<String,dynamic> get user => _user;
 
   Map<String,dynamic> get product => _product;
 
   AppState.initialState() : 
-    _auth = {
-      "token": "",
-    }, 
-    _tab = 0,
-    _env =  {},
-    _device = {
-      "id"  :  "",
-      "name":  ""
-    },
-    _user = {},
-    _product = {};
+    _auth      = { "token": "" }, 
+    _tab       = 0,
+    _cartItems = 0,
+    _category  = { "id":"", "name": ""},
+    _env       = {},
+    _device    = { "id":"", "name":""},
+    _user      = {},
+    _product   = {};
 
 }
 
@@ -65,7 +74,9 @@ AppState appReducer(AppState state, dynamic action) {
       state.env,
       state.tab,
       state.user,
-      state.product
+      state.product,
+      state.category,
+      state.cartItems
     ); 
   } 
   if( action is UpdateDevice){
@@ -75,7 +86,9 @@ AppState appReducer(AppState state, dynamic action) {
       state.env,
       state.tab,
       state.user,
-      state.product
+      state.product,
+      state.category,
+      state.cartItems
     );
   }
   if( action is UpdateEnv){
@@ -85,7 +98,9 @@ AppState appReducer(AppState state, dynamic action) {
       action.env,
       state.tab,
       state.user,
-      state.product
+      state.product,
+      state.category,
+      state.cartItems
     );
   }    
   if( action is UpdateUser){
@@ -95,7 +110,9 @@ AppState appReducer(AppState state, dynamic action) {
       state.env,
       state.tab,
       action.user,
-      state.product
+      state.product,
+      state.category,
+      state.cartItems
     );  
   }  
   if( action is ViewProduct){
@@ -105,7 +122,9 @@ AppState appReducer(AppState state, dynamic action) {
       state.env,
       state.tab,
       state.user,
-      action.product
+      action.product,
+      state.category,
+      state.cartItems,
     );
   } 
   if( action is UpdateTab){
@@ -115,8 +134,34 @@ AppState appReducer(AppState state, dynamic action) {
       state.env,
       action.tab,
       state.user,
-      state.product
+      state.product,
+      state.category,
+      state.cartItems,
     );
-  }     
+  }    
+  if( action is UpdateCategory){
+    return AppState(
+      state.auth,
+      state.device,
+      state.env,
+      state.tab,
+      state.user,
+      state.product,
+      action.category,
+      state.cartItems,
+    );
+  } 
+  if( action is UpdateCartItems){
+    return AppState(
+      state.auth,
+      state.device,
+      state.env,
+      state.tab,
+      state.user,
+      state.product,
+      state.category,
+      action.cartItems,
+    );
+  }       
   return state;
 }

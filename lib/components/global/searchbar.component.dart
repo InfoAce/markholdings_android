@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 class CustomSearchBar extends StatefulWidget {
-  CustomSearchBar(
+  const CustomSearchBar(
     {super.key, 
     required this.placeholder,
     required this.callback
@@ -36,7 +36,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
             },            
             decoration: InputDecoration(
               isDense: true,
-              contentPadding: EdgeInsets.all(1),
+              contentPadding: const EdgeInsets.all(1),
               border: const OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(5.0)),
                 borderSide: BorderSide(

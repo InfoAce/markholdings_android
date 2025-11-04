@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:markholdings_ecommerce/main.dart';
-import 'package:markholdings_ecommerce/screens/home.screen.dart';
-import 'package:markholdings_ecommerce/services/api.service.dart';
-import 'package:markholdings_ecommerce/store/actions/auth.action.store.dart';
-import 'package:markholdings_ecommerce/validations/company.validation.dart';
-import 'package:markholdings_ecommerce/validations/profile.validation.dart';
+import 'package:markholdings_9/main.dart';
+import 'package:markholdings_9/screens/home.screen.dart';
+import 'package:markholdings_9/services/api.service.dart';
+import 'package:markholdings_9/store/actions/auth.action.store.dart';
+import 'package:markholdings_9/validations/company.validation.dart';
+import 'package:markholdings_9/validations/profile.validation.dart';
 import 'package:provider/provider.dart';
 import 'package:redux/redux.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
@@ -20,7 +20,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
 
   late Map<String,dynamic> company = {};
-  List<Widget> _children           = [];
+  final List<Widget> _children           = [];
   late dynamic user                = {};
   late String logo;
 
@@ -82,7 +82,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
           })
           .whenComplete(() {
-            Future.delayed(Duration(seconds: 2),() {
+            Future.delayed(const Duration(seconds: 2),() {
               Navigator.pushNamed(context, 'home');
             });
           });
@@ -115,7 +115,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                       fontFamily: 'Rubik',
                       color: Colors.blueAccent
                   ),
-                  child: Text("Markholdings"),
+                  child: Text("markholdings_9"),
                 ),                  
               ],
             )

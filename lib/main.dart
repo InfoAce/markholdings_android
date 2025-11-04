@@ -1,26 +1,31 @@
 
 import 'dart:convert';
 
+// import 'package:markholdings_9/screens/splash.screen.dart';
+import 'package:markholdings_9/screens/verification.screen.dart';
+import 'package:markholdings_9/store/actions/user.action.store.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:markholdings_ecommerce/store/actions/env.action.store.dart';
-import 'package:markholdings_ecommerce/store/actions/tab.action.store.dart';
-import 'package:markholdings_ecommerce/store/app.store.dart';
-import 'package:markholdings_ecommerce/store/actions/auth.action.store.dart';
+import 'package:markholdings_9/store/actions/env.action.store.dart';
+import 'package:markholdings_9/store/actions/tab.action.store.dart';
+import 'package:markholdings_9/store/app.store.dart';
+import 'package:markholdings_9/store/actions/auth.action.store.dart';
 import 'package:redux/redux.dart';
-import 'package:markholdings_ecommerce/services/api.service.dart';
+import 'package:markholdings_9/services/api.service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:markholdings_ecommerce/screens/home.screen.dart';
+import 'package:markholdings_9/screens/home.screen.dart';
 import 'package:provider/provider.dart';
 import 'package:data_cache_manager/data_cache_manager.dart';
 
 late Store<AppState> store;
 
+@pragma("vm:entry-point")
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final _manager = DefaultDataCacheManager.instance;
-  final auth     = await _manager.get('auth');
+  DataCacheManager cacheManager = DefaultDataCacheManager.instance;
+  CachedData? authStore         = await cacheManager.get('auth');
+  Map<String,dynamic> auth      = authStore != null ? jsonDecode(authStore.value.toString()) : {};
 
   store = Store<AppState>(appReducer,initialState: AppState.initialState());
 
@@ -28,13 +33,17 @@ Future<void> main() async {
 
   dynamic user                  = {};
   Map<String,String> headers    = { 
-    "Content-Type":"application/json",
-    "Accept":"application/json"
+    "Content-Type": "application/json; charset=utf-8",
+    "Accept":       "application/json"
   };
 
-  if( auth != null ){
-    final authorized = jsonDecode(auth.value.toString())['token'];
-    headers[authorized['token_type']] = authorized['access_token'];
+  if( auth.isNotEmpty && auth.containsKey('token') ){
+          
+    store.dispatch(UpdateAuth(auth['token']));
+    
+    store.dispatch(UpdateUser(auth['user']));
+      
+    headers['Authorization'] = auth['token']['token_type'] + ' ' + auth['token']['access_token'];
   }
   
   store.dispatch(UpdateAuth({})); 
@@ -45,7 +54,7 @@ Future<void> main() async {
 
   runApp(StoreProvider(
     store:store,
-    child: MarkholdingsApp(cache:_manager, headers: headers),
+    child: MarkholdingsApp(cache:cacheManager, headers: headers),
   ));
 
 }
@@ -73,8 +82,9 @@ class MarkholdingsApp extends StatelessWidget{
       child: MaterialApp(
         initialRoute: 'home',
         routes: {
-          'home': (context) => const Home(),
-          // '/':     (context) => const SplashScreen(),
+          'home':         (context) => const Home(),
+          'verification': (context) => const VerificationScreen(),
+          // 'splash':       (context) => const SplashScreen(),
         },
         theme: ThemeData(fontFamily: 'Rubik')
       )

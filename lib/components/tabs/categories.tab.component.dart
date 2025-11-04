@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:markholdings_ecommerce/components/builders/categories.builder.dart';
-import 'package:markholdings_ecommerce/components/global/searchbar.component.dart';
+import 'package:markholdings_9/components/builders/categories.builder.dart';
+import 'package:markholdings_9/store/actions/category.action.store.dart';
+import 'package:markholdings_9/components/global/searchbar.component.dart';
 import 'package:sticky_headers/sticky_headers/widget.dart';
+import 'package:redux/redux.dart';
+import 'package:provider/provider.dart';
+import 'package:markholdings_9/store/actions/product.action.store.dart';
 
 class CategoriesTab extends StatefulWidget {
   
@@ -13,9 +17,21 @@ class CategoriesTab extends StatefulWidget {
 }
 
 class _CategoriesTabState extends State<CategoriesTab> {
+  Store? store;
 
-  filterCategories(){
+  @override
+  void initState() {
+    // ignore: avoid_print
+    super.initState();
 
+    store        = Provider.of<Store>(super.context,listen:false);
+
+    _resetViewProduct();
+  }
+
+  void _resetViewProduct() {
+    store?.dispatch(ViewProduct({}));
+    store?.dispatch(UpdateCategory({ "id": "", "name": "" })); 
   }
 
   @override
@@ -24,17 +40,17 @@ class _CategoriesTabState extends State<CategoriesTab> {
       child: StickyHeader(
         header: Container(
           width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
+          decoration:const BoxDecoration(
             color: Colors.blueAccent
           ),
           child: Padding(
-            padding: EdgeInsets.all(15.0),
+            padding: const EdgeInsets.all(10.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children:[
-                      Padding(
+                    Padding(
                       padding: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.01),
                       child: const Icon(
                         Icons.list,
@@ -45,7 +61,6 @@ class _CategoriesTabState extends State<CategoriesTab> {
                       'Categories',
                       style: GoogleFonts.poppins(
                         color: Colors.white,
-                        fontSize: MediaQuery.of(context).size.width * 0.05
                       )
                     ),                       
                   ]
@@ -70,7 +85,7 @@ class _CategoriesTabState extends State<CategoriesTab> {
                 )  
                 ), 
               ),  
-              CategoriesBuilders()                
+              const CategoriesBuilders()                
             ],
           )
         )
