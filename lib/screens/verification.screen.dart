@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
 import 'package:markholdings/services/api.service.dart';
 import 'package:markholdings/store/actions/tab.action.store.dart';
 import 'package:data_cache_manager/data_cache_manager.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_verification_code/flutter_verification_code.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:redux/redux.dart';
+import 'package:sms_autofill/sms_autofill.dart';
 
 class VerificationScreen extends StatefulWidget {
   const VerificationScreen({super.key});
@@ -16,11 +18,12 @@ class VerificationScreen extends StatefulWidget {
   State<VerificationScreen> createState() => _VerificationScreenState();
 }
 
-class _VerificationScreenState extends State<VerificationScreen> {
+class _VerificationScreenState extends State<VerificationScreen> with CodeAutoFill {
 
   DataCacheManager? cacheManager;
   Timer? _timer;
   Store? store;
+  String? _otpCode;
 
   bool _loader             = false;
   bool _verificationLoader = false;
@@ -50,16 +53,41 @@ class _VerificationScreenState extends State<VerificationScreen> {
   @override
   void initState() {
     super.initState();
+    _listenForSms();
     cacheManager = Provider.of<DataCacheManager>(context,listen: false);
     store        = Provider.of<Store>(context,listen: false);
 
   }
 
+  void _listenForSms() async {
+    // Listens for incoming SMS containing an OTP
+    await SmsAutoFill().listenForCode();
+  }  
+
   @override
   void dispose() {
     super.dispose();
     _timer?.cancel();
+    SmsAutoFill().unregisterListener();
   }
+
+  @override
+  void codeUpdated() {
+    // Called automatically when the SMS is detected and user approves prompt
+    setState(() {
+      print(code);
+      _otpCode = code;
+    });
+    
+    if (_otpCode != null && _otpCode!.length == 6) {
+      _verifyOtp(_otpCode!);
+    }
+  }  
+
+  void _verifyOtp(String code) {
+    // Trigger your API verification call here
+    print("Verifying OTP: $code");
+  }  
 
   @override
   Widget build(BuildContext context) {
@@ -86,57 +114,91 @@ class _VerificationScreenState extends State<VerificationScreen> {
                   "Verification Code",
                   style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: Colors.white),
                 ),
-                Text(
-                  "You are almost there. Please check your mail for a verification sent to you.",
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white),
-                ),
-                VerificationCode(
-                  textStyle: const TextStyle(fontSize: 20.0, color: Colors.white),
-                  keyboardType: TextInputType.text,
-                  underlineColor: Colors.white, // If this is null it will use primaryColor: Colors.red from Theme
-                  length: 4,
-                  cursorColor: Colors.white, // If this is null it will default to the ambient
-                  clearAll: Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Row(
-                      children: [
-                        const Text(
-                          'Clear all',
-                          style: TextStyle(fontSize: 14.0, color: Colors.white),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left : 10),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              resendCode();
-                            }, 
-                            child: _loader ? 
-                              const SizedBox(
-                                height: 20.0,
-                                width: 20.0,
-                                child: CircularProgressIndicator(
-                                  color: Colors.blueAccent,                            
-                                ),
-                              ) : 
-                              Text(
-                                _timer != null && _timer!.isActive ? _start.toString() : 'Resend Code',
-                                style: const TextStyle(fontSize: 14.0, color: Colors.blueAccent),
-                              )
-                          ),
-                        )                                         
-                      ],
-                    ),
+                Center(
+                  child: Text(
+                    "You should receive a verification code on your phone",
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white),
                   ),
-                  onCompleted: (String value) {
-                    codeConfirmation(value);
-                  },
-                  onEditing: (bool value) {
-                    // setState(() {
-                    //   _onEditing = value;
-                    // });
-                    // if (!_onEditing) FocusScope.of(context).unfocus();
-                  },
                 ),
+                PinFieldAutoFill(
+                  currentCode: _otpCode,
+                  codeLength: 4,
+                  onCodeSubmitted: (code) {
+                    codeConfirmation(code);
+                  },
+                  onCodeChanged: (code) {
+                    if (code != null && code.length == 4) {
+                      codeConfirmation(code);
+                    }
+                  },
+                ),                
+                Padding(
+                  padding: const EdgeInsets.only(left : 10, top: 30),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      resendCode();
+                    }, 
+                    child: _loader ? 
+                      const SizedBox(
+                        height: 20.0,
+                        width: 20.0,
+                        child: CircularProgressIndicator(
+                          color: Colors.blueAccent,                            
+                        ),
+                      ) : 
+                      Text(
+                        _timer != null && _timer!.isActive ? _start.toString() : 'Resend Code',
+                        style: const TextStyle(fontSize: 14.0, color: Colors.blueAccent),
+                      )
+                  ),
+                ) 
+                // VerificationCode(
+                //   textStyle: const TextStyle(fontSize: 20.0, color: Colors.white),
+                //   keyboardType: TextInputType.text,
+                //   underlineColor: Colors.white, // If this is null it will use primaryColor: Colors.red from Theme
+                //   length: 4,
+                //   cursorColor: Colors.white, // If this is null it will default to the ambient
+                //   clearAll: Padding(
+                //     padding: const EdgeInsets.all(15.0),
+                //     child: Row(
+                //       children: [
+                //         const Text(
+                //           'Clear all',
+                //           style: TextStyle(fontSize: 14.0, color: Colors.white),
+                //         ),
+                //         Padding(
+                //           padding: const EdgeInsets.only(left : 10),
+                //           child: ElevatedButton(
+                //             onPressed: () {
+                //               resendCode();
+                //             }, 
+                //             child: _loader ? 
+                //               const SizedBox(
+                //                 height: 20.0,
+                //                 width: 20.0,
+                //                 child: CircularProgressIndicator(
+                //                   color: Colors.blueAccent,                            
+                //                 ),
+                //               ) : 
+                //               Text(
+                //                 _timer != null && _timer!.isActive ? _start.toString() : 'Resend Code',
+                //                 style: const TextStyle(fontSize: 14.0, color: Colors.blueAccent),
+                //               )
+                //           ),
+                //         )                                         
+                //       ],
+                //     ),
+                //   ),
+                //   onCompleted: (String value) {
+                //     codeConfirmation(value);
+                //   },
+                //   onEditing: (bool value) {
+                //     // setState(() {
+                //     //   _onEditing = value;
+                //     // });
+                //     // if (!_onEditing) FocusScope.of(context).unfocus();
+                //   },
+                // ),
               ],
             ),
           ),
@@ -172,7 +234,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
       Map<String,dynamic> user = auth['user'];
       String id                = user['id'];
 
-      if( code != user['device_code'] ){
+      if( int.tryParse(code) != user['device_code'] ){
         showMessage(
           'Verification code is not valid.',
           Colors.amber
@@ -235,6 +297,8 @@ class _VerificationScreenState extends State<VerificationScreen> {
       Map<String,dynamic> data = jsonDecode(response.body);
 
       if( response.statusCode == 200 ){
+
+        print(data);
 
         showMessage(
           'The code has been sent.',

@@ -10,6 +10,9 @@ class SignupModel{
   late String email;
 
   // Initialize email
+  late String phone_number;  
+
+  // Initialize email
   late String account_type;  
 
   // Initialize password
@@ -24,6 +27,7 @@ class SignupModel{
       this.first_name             = "", 
       this.last_name              = "",
       this.email                  = "",
+      this.phone_number           = "",
       this.account_type           = "",
       this.password               = "",
       this.password_confirmation  = "",
@@ -35,6 +39,7 @@ class SignupModel{
       "first_name":            first_name,
       "last_name":             last_name,
       "email":                 email,
+      "phone_number":          phone_number,
       "account_type":          account_type,
       "password":              password,
       "password_confirmation": password_confirmation

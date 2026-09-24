@@ -29,12 +29,14 @@ class _SignUpViewState extends State<SignUpView> {
   final FocusNode _focusNodeFirstName                    = FocusNode();
   final FocusNode _focusNodeLastName                     = FocusNode();
   final FocusNode _focusNodeEmail                        = FocusNode();
+  final FocusNode _focusNodePhoneNumber                  = FocusNode();
   final FocusNode _focusNodeAccountType                  = FocusNode();
   final FocusNode _focusNodePassword                     = FocusNode();
   final FocusNode _focusNodeConfirmPassword              = FocusNode();
   final TextEditingController _controllerFirstName       = TextEditingController();
   final TextEditingController _controllerLastName        = TextEditingController();
   final TextEditingController _controllerEmail           = TextEditingController();
+  final TextEditingController _controllerPhoneNumber     = TextEditingController();
   final TextEditingController _controllerAccountType     = TextEditingController();
   final TextEditingController _controllerPassword        = TextEditingController();
   final TextEditingController _controllerConfirmPassword = TextEditingController();
@@ -43,6 +45,7 @@ class _SignUpViewState extends State<SignUpView> {
   bool _obscurePassword                                  = true;
   bool _obscureConfirmPassword                           = true;
   SignupModel form                                       = SignupModel();
+  String selectedCountryCode                             = "+254";
   DataCacheManager? cacheManager;
   
   @override
@@ -56,6 +59,7 @@ class _SignUpViewState extends State<SignUpView> {
     _focusNodeFirstName.dispose();
     _focusNodeLastName.dispose();
     _focusNodeEmail.dispose();
+    _focusNodePhoneNumber.dispose();
     _focusNodeAccountType.dispose();
     _focusNodePassword.dispose();
     _focusNodeConfirmPassword.dispose();
@@ -180,6 +184,67 @@ class _SignUpViewState extends State<SignUpView> {
                       });
                   },                   
                   onEditingComplete: () => _focusNodeEmail.requestFocus(),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: TextFormField(
+                  controller: _controllerPhoneNumber,
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    labelText: "Phone Number",
+                    prefixIcon: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(width: 12),
+                        const Icon(Icons.phone_outlined),
+                        const SizedBox(width: 8),
+                        DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: selectedCountryCode,
+                            items: const [
+                              DropdownMenuItem(value: "+254", child: Text("+254")),
+                            ],
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() {
+                                  selectedCountryCode = value;
+                                  form.phone_number = "$selectedCountryCode${_controllerPhoneNumber.text}";
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                        const VerticalDivider(width: 1, indent: 10, endIndent: 10),
+                        const SizedBox(width: 8),
+                      ],
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  validator: (String? value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Please enter phone number.";
+                    }
+                    
+                    final phoneRegExp = RegExp(r'^[0-9]{7,10}$');
+                    
+                    if (!phoneRegExp.hasMatch(value.trim())) {
+                      return "Please enter a valid phone number.";
+                    }
+                    
+                    return null;
+                  },
+                  onChanged: (text) {
+                    setState(() {
+                      form.phone_number = "$selectedCountryCode$text";
+                    });
+                  }, 
+                  onEditingComplete: () => _focusNodePhoneNumber.requestFocus(),
                 ),
               ),
               Padding(
