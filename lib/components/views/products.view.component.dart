@@ -166,6 +166,7 @@ class _ProductsViewState extends State<ProductsView> with SingleTickerProviderSt
       uri = '$uri&category_id=${store.state.category["id"]}';
     }
 
+    print(uri);
 
     final response = await Provider.of<ApiService>(context,listen: false).get(Uri.parse(uri.toString()));
 
